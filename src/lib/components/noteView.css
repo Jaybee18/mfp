@@ -1,0 +1,10 @@
+.notes {
+    border: 1px dashed black;
+    max-width: 100%;
+    width: fit-content;
+    height: fit-content;
+}
+
+.keys {
+    border: 1px dashed black;
+}

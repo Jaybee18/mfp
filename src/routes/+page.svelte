@@ -1,5 +1,6 @@
 <script lang="ts">
+    import NoteView from '$lib/components/noteView.svelte';
     import '$lib/noteView';
 </script>
 
-<div>this is main, i think?</div>
+<NoteView />

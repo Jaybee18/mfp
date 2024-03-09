@@ -33,6 +33,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"jzz": "^1.8.0"
+		"jzz": "^1.8.0",
+		"vexflow": "^4.2.3"
 	}
 }
