@@ -1,20 +1,21 @@
-<!--test
-
-inländische waren-politik enforcen-->
-
 <script lang="ts">
-    import "$lib/noteView";
-	import { loadNotes } from "$lib/noteView";
+	import { onLoad } from "$lib/noteView";
 	import { onMount } from "svelte";
 
     import './noteView.css';
 
     onMount(() => {
-        loadNotes();
-    })
+        console.log(window);
+        onLoad();
+    });
 </script>
 
 <div class="notes-wrapper">
+    <!--<div class="drop-zone" on:drop={onDrop} on:dragover={onDragOver} aria-hidden="true">
+        <div>
+            Drop MIDI file here
+        </div>
+    </div>-->
     <div class="notes" id="notes"></div>
     <canvas class="keys"></canvas>
 </div>

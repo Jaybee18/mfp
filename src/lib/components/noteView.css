@@ -8,3 +8,22 @@
 .keys {
     border: 1px dashed black;
 }
+
+.notes-wrapper {
+    position: relative;
+    height: 100%;
+}
+
+.drop-zone {
+    position: absolute;
+    background-color: #4aaaa333;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    border: 2px dashed black;
+    box-sizing: border-box;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -18,6 +18,7 @@
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/eslint": "^8.56.0",
+		"@types/vextab": "^3.0.3",
 		"@typescript-eslint/eslint-plugin": "^7.0.0",
 		"@typescript-eslint/parser": "^7.0.0",
 		"eslint": "^8.56.0",
@@ -33,7 +34,11 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@tonaljs/midi": "^4.9.3",
 		"jzz": "^1.8.0",
-		"vexflow": "^4.2.3"
+		"midi-parser-js": "^4.0.4",
+		"tone": "^14.7.77",
+		"vexflow": "^4.2.3",
+		"vextab": "^3.0.6"
 	}
 }

@@ -1,72 +1,25 @@
-import JZZ  from 'jzz';
-import { Factory, EasyScore, System, Renderer, Stave } from 'vexflow';
+import Vex from 'vexflow';
 
-const onMidiIn = (ev: WebMidi.MIDIMessageEvent) => {
-    console.log(ev);
-};
-
-const startMidiListen = (midiAcess: WebMidi.MIDIAccess) => {
-    const inputs = midiAcess.inputs;
-
-    console.log(inputs.values());
-    console.log(inputs.keys());
-
-    inputs.forEach(port => {
-        console.log(port);
-        port.onmidimessage = onMidiIn;
-    })
-};
-
-const midiAccessDenied = () => {
-    console.log("midi access denied");
+export function onLoad() {
+    console.log("load");
+    test();
 }
 
-JZZ.requestMIDIAccess().then(startMidiListen, midiAccessDenied);
+function test() {
+    const element = document.getElementById("notes");
 
-// ---
-export function loadNotes() {
-    const vf = new Factory({
-        renderer: { elementId: 'notes', width: 500, height: 150 },
-    });
-
-    const score = vf.EasyScore();
-    const system = vf.System();
-
-    // let stave1 = system
-    //     .addStave({
-    //     voices: [
-    //         score.voice(score.notes('C#5/q, B4, A4, G#4', { stem: 'up' })),
-    //         score.voice(score.notes('C#4/h, C#4', { stem: 'down' })),
-    //     ],
-    //     })
-    //     .addClef('treble')
-    //     .addTimeSignature('4/4');
+    const data = `
+    tabstave notation=true key=A time=4/4
+  
+    notes :q =|: (5/2.5/3.7/4) :8 7-5h6/3 ^3^ 5h6-7/5 ^3^ :q 7V/4 |
+    notes :8 t12p7/4 s5s3/4 :8 3s:16:5-7/5 :q p5/4
+    text :w, |#segno, ,|, :hd, , #tr
+    `
+  
+    const VF = Vex.Flow
     
-    // system.addConnector();
-
-    // let stave2 = system.addStave({
-    //     voices: [
-    //         score.voice(score.notes('C#5/q, B4, A4, G#4', { stem: 'up' })),
-    //         score.voice(score.notes('C#4/h, C#4', { stem: 'down' })),
-    //     ],
-    //     });
-
-    // vf.draw();
-
-    let canvas = document.getElementById("notes") as HTMLDivElement;
-    const renderer = new Renderer(canvas, Renderer.Backends.SVG);
-
-    // Configure the rendering context.
-    renderer.resize(500, 500);
-    const context = renderer.getContext();
-    context.setFont('Arial', 10);
-
-    // Create a stave of width 400 at position 10, 40.
-    const stave = new Stave(10, 40, 400);
-
-    // Add a clef and time signature.
-    stave.addClef('treble').addTimeSignature('4/4');
-
-    // Connect it to the rendering context and draw!
-    stave.setContext(context).draw();
+    const renderer = new VF.Renderer(element,
+        VF.Renderer.Backends.SVG);
+    
+    // Initialize VexTab artist and parser.
 }
