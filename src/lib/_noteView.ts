@@ -13,22 +13,11 @@ const midiParser = new MidiParser();
 //     loadNotes();
 // };
 
-const startMidiListen = (midiAcess: WebMidi.MIDIAccess) => {
-    const inputs = midiAcess.inputs;
-    
-    console.log(inputs.values());
-    console.log(inputs.keys());
-    inputs.forEach(port => {
-        console.log(port);
-        //port.onmidimessage = onMidiIn;
-    })
-};
 
-const midiAccessDenied = () => {
-    console.log("midi access denied");
-}
 
-JZZ.requestMIDIAccess().then(startMidiListen, midiAccessDenied);
+
+
+
 
 // --- midi file drop zone ---
 function ticksToMs(bpm: number, ticks: number) {
