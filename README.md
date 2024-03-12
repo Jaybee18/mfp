@@ -14,6 +14,7 @@ A piano learning webapp for midi devices
 ### v0.3
 - [ ] map midi buttons to play/stop/restart
 - [ ] metronome
+- [ ] use pitch wheel to scroll notes up/down
 
 ## backlog
 - [ ] key holding particle effects
