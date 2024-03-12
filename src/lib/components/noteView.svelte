@@ -3,13 +3,23 @@
     import JZZ from 'jzz';
 
     import './noteView.css';
-	import { drawPiano } from "$lib/pianoCanvas";
 	import { readMidiFile } from "$lib/notes";
 	import { Piano } from "$lib/piano";
 	import { PianoRoll } from "$lib/pianoRollCanvas";
+	import { PianoKeys } from "$lib/pianoKeys";
     
-    const piano = new Piano(7);
+    const piano = new Piano(5);
     const pianoRoll = new PianoRoll(piano);
+    const pianoKeys = new PianoKeys(piano);
+
+    const onMidiIn = (e: MIDIMessageEvent) => {
+        piano.midiEvent(e);
+
+        if (!pianoRoll.isPlaying()) {
+            pianoRoll.play();
+            requestAnimationFrame(update);
+        }
+    }
 
     const startMidiListen = (midiAcess: WebMidi.MIDIAccess) => {
         const inputs = midiAcess.inputs;
@@ -18,7 +28,7 @@
         console.log(inputs.keys());
         inputs.forEach(port => {
             console.log(port);
-            //port.onmidimessage = onMidiIn;
+            port.onmidimessage = onMidiIn;
         })
     };
 
@@ -31,6 +41,7 @@
     async function update() {
         pianoRoll.tick();
         pianoRoll.draw();
+        pianoKeys.draw();
         if (pianoRoll.isPlaying())
             requestAnimationFrame(update);
     }
@@ -43,22 +54,33 @@
             readMidiFile(file, (parsed) => {
                 pianoRoll.setNotes(parsed);
                 pianoRoll.draw();
-
-                pianoRoll.play();
-                requestAnimationFrame(update);
             });
         }
     };
 
     onMount(() => {
-        console.log(window);
-
         const pianoRollCanvas = document.getElementById("notes") as HTMLCanvasElement;
+        const pianoKeysCanvas = document.getElementById("piano") as HTMLCanvasElement;
+
+        const observer = new ResizeObserver((entries) => {
+            pianoRollCanvas.width = pianoRollCanvas.clientWidth;
+            pianoRollCanvas.height = pianoRollCanvas.clientHeight;
+
+            pianoKeysCanvas.width = pianoKeysCanvas.clientWidth;
+            pianoKeysCanvas.height = pianoKeysCanvas.clientHeight;
+
+            pianoRoll.resize(pianoRollCanvas.width, pianoRollCanvas.height);
+            pianoRoll.draw();
+            pianoKeys.resize(pianoKeysCanvas.width, pianoKeysCanvas.height);
+            pianoKeys.draw();
+        });
+        observer.observe(pianoRollCanvas);
+        observer.observe(pianoKeysCanvas);
+
         pianoRoll.setCanvas(pianoRollCanvas);
 
-        const canvas = document.getElementById("piano") as HTMLCanvasElement;
-        if (canvas !== null)
-            drawPiano(canvas);
+        pianoKeys.setCanvas(pianoKeysCanvas);
+        pianoKeys.draw();
     });
 
     // show/hide the midi drop hint

@@ -8,6 +8,7 @@
 
 .header, .footer {
     height: 100px;
+    min-height: 100px;
     background-color: green;
     display: flex;
     flex-direction: column;

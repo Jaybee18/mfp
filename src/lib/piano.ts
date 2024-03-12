@@ -1,4 +1,4 @@
-import { middleCMidiNumber } from "./constants";
+import { MidiNoteOff, MidiNoteOn, middleCMidiNumber } from "./constants";
 
 // get middle c index relative to octave number (including sharp keys)
 function getMiddleCIndex(octaves: number) {
@@ -27,6 +27,8 @@ export class Piano {
     private numNaturalKeys: number;
     private middleCIndex: number;
     private leftMostKeyMidi: number;
+
+    private pressedNotes: number[] = [];
 
     constructor(octaves: number) {
         this.octaves = octaves;
@@ -57,5 +59,21 @@ export class Piano {
             default:
                 return true;
         }
+    }
+
+    public midiEvent(e: MIDIMessageEvent) {
+        if (e.data[0] === MidiNoteOn) {
+            this.pressedNotes.push(e.data[1]);
+        } else if (e.data[0] === MidiNoteOff) {
+            this.pressedNotes.splice(this.pressedNotes.indexOf(e.data[1]), 1);
+        }
+    }
+
+    public isNoteDown(midi: number) {
+        return this.pressedNotes.indexOf(midi) !== -1;
+    }
+
+    public getMidiAtIndex(index: number) {
+        return this.leftMostKeyMidi + index;
     }
 }

@@ -144,6 +144,12 @@ export class PianoRoll {
         });
     }
 
+    public resize(newWidth: number, newHeight: number) {
+        this.width = newWidth;
+        this.height = newHeight;
+        this.calculateKeyWidths();
+    }
+
     public isPlaying() {
         return this._isPlaying;
     }

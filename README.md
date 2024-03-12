@@ -4,7 +4,7 @@ A piano learning webapp for midi devices
 ### v0.1
 - [ ] decent ui
 - [x] import midi
-- [ ] play midi
+- [x] play midi
 
 ### v0.2
 - [ ] adjust viewport (ticks shown)
@@ -13,6 +13,7 @@ A piano learning webapp for midi devices
 
 ### v0.3
 - [ ] map midi buttons to play/stop/restart
+- [ ] metronome
 
 ## backlog
 - [ ] key holding particle effects
