@@ -5,7 +5,7 @@
     import './noteView.css';
 	import { readMidiFile } from "$lib/notes";
 	import { Piano } from "$lib/piano";
-	import { PianoRoll } from "$lib/pianoRollCanvas";
+	import { PianoRoll } from "$lib/pianoRoll";
 	import { PianoKeys } from "$lib/pianoKeys";
     
     const piano = new Piano(5);
@@ -58,16 +58,21 @@
         }
     };
 
+    const updateCanvasSize = (c: HTMLCanvasElement) => {
+        c.width = c.clientWidth;
+        c.height = c.clientHeight;
+    }
+
     onMount(() => {
         const pianoRollCanvas = document.getElementById("notes") as HTMLCanvasElement;
         const pianoKeysCanvas = document.getElementById("piano") as HTMLCanvasElement;
 
-        const observer = new ResizeObserver((entries) => {
-            pianoRollCanvas.width = pianoRollCanvas.clientWidth;
-            pianoRollCanvas.height = pianoRollCanvas.clientHeight;
+        updateCanvasSize(pianoRollCanvas);
+        updateCanvasSize(pianoKeysCanvas);
 
-            pianoKeysCanvas.width = pianoKeysCanvas.clientWidth;
-            pianoKeysCanvas.height = pianoKeysCanvas.clientHeight;
+        const observer = new ResizeObserver((entries) => {
+            updateCanvasSize(pianoRollCanvas);
+            updateCanvasSize(pianoKeysCanvas);
 
             pianoRoll.resize(pianoRollCanvas.width, pianoRollCanvas.height);
             pianoRoll.draw();
@@ -103,6 +108,7 @@
                 Drop MIDI file here
             </div>
         </div>
+        <div id="note-shadow"></div>
         <canvas id="notes"></canvas>
     </div>
     <canvas id="piano" class="keys"></canvas>

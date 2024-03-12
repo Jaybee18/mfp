@@ -1,4 +1,4 @@
-import { sharpKeyWidthFactor } from "./constants";
+import { highlight, sharpKeyWidthFactor } from "./constants";
 import type { Note } from "./notes";
 import type { Piano } from "./piano";
 
@@ -36,8 +36,11 @@ export class PianoRoll {
     public setCanvas(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         const { width, height } = canvas.getBoundingClientRect();
-        canvas.width = width;
-        canvas.height = height;
+        const dpi = window.devicePixelRatio;
+        const style_width = getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
+        const style_height = getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
+        canvas.setAttribute("width", (Number(style_width) * dpi).toString());
+        canvas.setAttribute("height", (Number(style_height) * dpi).toString());
         this.width = width;
         this.height = height;
 
@@ -129,7 +132,7 @@ export class PianoRoll {
     
         ctx.clearRect(0, 0, this.width, this.height);
 
-        ctx.fillStyle = "#0000ff";
+        ctx.fillStyle = highlight;
         this.notes.forEach(note => {
             const x = this.getNoteX(note.midiNumber);
             const y = this.height - note.startTime * tickHeight + this.time;

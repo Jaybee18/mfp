@@ -2,7 +2,7 @@
 A piano learning webapp for midi devices
 ## Roadmap
 ### v0.1
-- [ ] decent ui
+- [x] decent ui
 - [x] import midi
 - [x] play midi
 

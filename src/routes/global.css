@@ -1,20 +1,45 @@
+:root {
+    --background: #323437;
+    --text: #646669;
+}
+
 .main {
-    background-color: red;
     width: 70%;
     height: 100%;
     display: flex;
     flex-direction: column;
+
+    background-color: var(--background);
 }
 
 .header, .footer {
     height: 100px;
     min-height: 100px;
-    background-color: green;
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    color: var(--text);
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.footer > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.footer > div a {
+    text-decoration: none;
+    color: var(--text);
+    margin: 0 5px;
+}
+
+.footer > div a:hover {
+    text-decoration: underline;
 }
 
 .content {
     flex: 1;
+    overflow: hidden;
 }

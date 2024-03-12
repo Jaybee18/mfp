@@ -16,8 +16,11 @@ export class PianoKeys {
     public setCanvas(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         const { width, height } = canvas.getBoundingClientRect();
-        canvas.width = width;
-        canvas.height = height;
+        const dpi = window.devicePixelRatio;
+        const style_width = getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
+        const style_height = getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
+        canvas.setAttribute("width", (Number(style_width) * dpi).toString());
+        canvas.setAttribute("height", (Number(style_height) * dpi).toString());
         this.width = width;
         this.height = height;
     }
@@ -35,7 +38,7 @@ export class PianoKeys {
         
         this.canvas.width = width;
         this.canvas.height = height;
-        ctx.translate(0.5, 0.5);
+        //ctx.translate(0.5, 0.5);
         
         const numNaturalKeys = this.piano.octaves * 7 + 1;
         const naturalKeyWidth = width / numNaturalKeys;
