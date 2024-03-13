@@ -1,4 +1,4 @@
-import { highlight, sharpKeyWidthFactor } from "./constants";
+import { highlight, pianoRollFps, sharpKeyWidthFactor } from "./constants";
 import type { Note } from "./notes";
 import type { Piano } from "./piano";
 
@@ -6,6 +6,9 @@ export class PianoRoll {
     public width: number = 0;
     public height: number = 0;
     public time: number = 0; // in ticks
+    public bpm: number = 120;
+    public ticksPerBeat: number = 1;
+    public viewportTicks: number = 96 * 50;
 
     private naturalKeyWidth: number = 0;
     private sharpKeyWidth: number = 0;
@@ -17,7 +20,7 @@ export class PianoRoll {
 
     private _isPlaying: boolean = false;
 
-    public drawNote: ((ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) => void) | null = null;
+    public drawNote: ((ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, isSharp: boolean) => void) | null = null;
 
     constructor(piano: Piano, canvas?: HTMLCanvasElement) {
         this.piano = piano;
@@ -49,6 +52,10 @@ export class PianoRoll {
 
     public setNotes(notes: Note[]) {
         this.notes = notes;
+    }
+
+    public hasNotes() {
+        return this.notes.length !== 0;
     }
 
     public deltaTime(ticks: number) {
@@ -127,24 +134,33 @@ export class PianoRoll {
         const ctx = this.canvas.getContext("2d");
         if (ctx === null) return;
 
-        const viewportTicks = 96 * 50;
-        const tickHeight = this.height / viewportTicks;
+        const tickHeight = this.height / this.viewportTicks;
     
         ctx.clearRect(0, 0, this.width, this.height);
 
         ctx.fillStyle = highlight;
-        this.notes.forEach(note => {
+        const notePaddingFactor = 0.9;
+
+        for (const note of this.notes) {
             const x = this.getNoteX(note.midiNumber);
             const y = this.height - note.startTime * tickHeight + this.time;
             const w = this.getNoteWidth(note.midiNumber)
             const h = note.duration * tickHeight;
 
+            // don't render notes that are not in the current viewport
+            if (y > this.height)
+                continue;
+            if (y + h < 0)
+                break;
+
+            const padding = (1 - notePaddingFactor) * w;
+
             if (this.drawNote !== null) {
-                this.drawNote(ctx, x, y, w, h);
+                this.drawNote(ctx, x, y, w, h, !this.piano.isNoteNatural(note.midiNumber));
             } else {
-                ctx.fillRect(x, y, w, h)
+                ctx.fillRect(x + padding/2, y, w - padding, h)
             }
-        });
+        }
     }
 
     public resize(newWidth: number, newHeight: number) {
@@ -153,16 +169,36 @@ export class PianoRoll {
         this.calculateKeyWidths();
     }
 
+    public setBpm(bpm: number) {
+        this.bpm = bpm;
+    }
+
+    public setTicksPerBeat(ticks: number) {
+        this.ticksPerBeat = ticks;
+    }
+
     public isPlaying() {
         return this._isPlaying;
     }
 
     public tick() {
-        this.time += 1;
+        this.time += (this.bpm / 60) * this.ticksPerBeat * ((1000 / pianoRollFps) / 1000);
     }
 
     public play() {
         this._isPlaying = true;
+
+        const intervalTimeout = 1000 / pianoRollFps;
+        const ticksPerUpdate = (this.bpm / 60) * this.ticksPerBeat * ((1000 / pianoRollFps) / 1000);
+
+        const timer = setInterval(() => {
+            if (!this.isPlaying()) {
+                clearInterval(timer);
+                return;
+            }
+            this.time += ticksPerUpdate;
+            this.draw();
+        }, intervalTimeout);
     }
 
     public stop() {

@@ -8,22 +8,28 @@
 	import { PianoRoll } from "$lib/pianoRoll";
 	import { PianoKeys } from "$lib/pianoKeys";
     
-    const piano = new Piano(5);
-    const pianoRoll = new PianoRoll(piano);
-    const pianoKeys = new PianoKeys(piano);
+    let piano = new Piano(5);
+    let pianoRoll = new PianoRoll(piano);
+    let pianoKeys = new PianoKeys(piano);
+
+    const updatePianoKeys = () => {
+        pianoKeys.draw();
+    }
 
     const onMidiIn = (e: MIDIMessageEvent) => {
         piano.midiEvent(e);
 
-        if (!pianoRoll.isPlaying()) {
+        // show pressed keys even when no midi is playing
+        requestAnimationFrame(updatePianoKeys);
+
+        if (!pianoRoll.isPlaying() && pianoRoll.hasNotes()) {
             pianoRoll.play();
-            requestAnimationFrame(update);
         }
     }
 
     const startMidiListen = (midiAcess: WebMidi.MIDIAccess) => {
         const inputs = midiAcess.inputs;
-        
+
         console.log(inputs.values());
         console.log(inputs.keys());
         inputs.forEach(port => {
@@ -38,21 +44,15 @@
 
     JZZ.requestMIDIAccess().then(startMidiListen, midiAccessDenied);
 
-    async function update() {
-        pianoRoll.tick();
-        pianoRoll.draw();
-        pianoKeys.draw();
-        if (pianoRoll.isPlaying())
-            requestAnimationFrame(update);
-    }
-
     const onDrop = (e: DragEvent) => {
         e.preventDefault();
         onDragLeave(e);
         const file = e.dataTransfer?.files[0];
         if (file !== undefined) {
-            readMidiFile(file, (parsed) => {
+            readMidiFile(file, (parsed, ticksPerBeat, bpm) => {
                 pianoRoll.setNotes(parsed);
+                pianoRoll.setBpm(bpm);
+                pianoRoll.setTicksPerBeat(ticksPerBeat);
                 pianoRoll.draw();
             });
         }

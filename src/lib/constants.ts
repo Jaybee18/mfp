@@ -9,3 +9,5 @@ export const sharpKeyHeightFactor = 0.6;
 
 export const backgroundGrey = "#323437";
 export const highlight = "#e2b714";
+
+export const pianoRollFps = 120;

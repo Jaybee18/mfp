@@ -204,6 +204,7 @@ export function MidiFile(data) {
 	var formatType = headerStream.readInt16();
 	var trackCount = headerStream.readInt16();
 	var timeDivision = headerStream.readInt16();
+	var bpm = 120; // default; only changed with SetTempo meta event
 	
 	let ticksPerBeat;
 	if (timeDivision & 0x8000) {
@@ -215,7 +216,9 @@ export function MidiFile(data) {
 	var header = {
 		'formatType': formatType,
 		'trackCount': trackCount,
-		'ticksPerBeat': ticksPerBeat
+		'ticksPerBeat': ticksPerBeat / 10, // this seems to always be too high by a factor of 10
+		'timeDivision': timeDivision,
+		'bpm': bpm,
 	}
 	var tracks = [];
 	for (var i = 0; i < header.trackCount; i++) {
@@ -227,6 +230,11 @@ export function MidiFile(data) {
 		var trackStream = Stream(trackChunk.data);
 		while (!trackStream.eof()) {
 			var event = readEvent(trackStream);
+
+			if (event.microsecondsPerBeat !== undefined) {
+				bpm = 1 / (event.microsecondsPerBeat / 1e-6) * 60;
+			}
+
 			tracks[i].push(event);
 			//console.log(event);
 		}

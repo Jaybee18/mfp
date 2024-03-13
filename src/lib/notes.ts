@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MidiFile } from "./midi-file-parser";
 
 export type Note = {
@@ -17,8 +18,21 @@ type MidiEvent = {
     velocity: number,
 }
 
-function parseMidi(binaryString: string | ArrayBuffer | null | undefined) {
-    const parsed = MidiFile(binaryString);
+type MidiFile = {
+    header: {
+        formatType: any,
+        trackCount: any,
+        ticksPerBeat: any,
+        timeDivision: any,
+        bpm: any,
+    };
+    tracks: never[][];
+}
+
+function parseMidi(parsed: MidiFile) {
+    
+    console.log(parsed);
+
     const track: MidiEvent[] = parsed.tracks[0];
     const res: Note[] = [];
 
@@ -57,14 +71,16 @@ function parseMidi(binaryString: string | ArrayBuffer | null | undefined) {
     return res;
 }
 
-export function readMidiFile(file: File, onsuccess: (notes: Note[]) => void) {
+export function readMidiFile(file: File, onsuccess: (notes: Note[], ticksPerBeat: number, bpm: number) => void) {
     const reader = new FileReader();
     reader.onload = (e) => {
         const data = e.target?.result;
 
-        const parsed = parseMidi(data);
+        const midifile = MidiFile(data);
 
-        onsuccess(parsed);
+        const parsed = parseMidi(midifile);
+
+        onsuccess(parsed, midifile.header.ticksPerBeat, midifile.header.bpm);
     }
     if (file !== undefined)
         reader.readAsBinaryString(file);

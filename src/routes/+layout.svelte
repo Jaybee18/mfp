@@ -3,7 +3,19 @@
 </script>
 
 <div class="main">
-    <div class="header">header</div>
+    <div class="header">
+        <div>
+            <h1>
+                mfp
+            </h1>
+            <div id="header-center">
+                Never Gonna Give You Up - Rick Astly
+            </div>
+            <div>
+                placeholder
+            </div>
+        </div>
+    </div>
     <div class="content">
         <slot></slot>
     </div>
