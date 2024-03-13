@@ -1,9 +1,5 @@
-<script>
-    import './global.css';
-</script>
-
 <div class="main">
-    <div class="header">
+    <header>
         <div>
             <h1>
                 mfp
@@ -15,11 +11,11 @@
                 placeholder
             </div>
         </div>
-    </div>
+    </header>
     <div class="content">
         <slot></slot>
     </div>
-    <div class="footer">
+    <footer>
         <div>
             <div>
                 &copy 2024 Jan Bessler
@@ -30,5 +26,5 @@
                 <a href="https://twitter.com/JanBessler">X</a>
             </div>
         </div>
-    </div>
+    </footer>
 </div>

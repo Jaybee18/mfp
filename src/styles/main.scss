@@ -1,0 +1,10 @@
+@charset "UTF-8";
+
+@import 'abstracts/functions';
+@import 'abstracts/variables';
+
+@import 'layout/header';
+@import 'layout/footer';
+
+@import 'pages/main';
+@import 'pages/noteView';

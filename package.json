@@ -9,6 +9,8 @@
 		"test": "playwright test",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"scss": "sass ./src/styles/main.scss ./src/dist/main.css",
+		"scss:watch": "sass --watch ./src/styles/main.scss ./src/dist/main.css",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},

@@ -1,4 +1,4 @@
-import { highlight, pianoRollFps, sharpKeyWidthFactor } from "./constants";
+import { highlight, pianoRollFps, sharpKeyWidthFactor } from "./constants/constants";
 import type { Note } from "./notes";
 import type { Piano } from "./piano";
 

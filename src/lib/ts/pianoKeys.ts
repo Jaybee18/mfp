@@ -1,4 +1,4 @@
-import { pianoKeyOutlineWidth, sharpKeyHeightFactor, sharpKeyWidthFactor } from "./constants";
+import { pianoKeyOutlineWidth, sharpKeyHeightFactor, sharpKeyWidthFactor } from "./constants/constants";
 import type { Piano } from "./piano";
 
 export class PianoKeys {

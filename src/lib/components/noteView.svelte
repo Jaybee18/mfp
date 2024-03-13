@@ -2,11 +2,10 @@
 	import { onMount } from "svelte";
     import JZZ from 'jzz';
 
-    import './noteView.css';
-	import { readMidiFile } from "$lib/notes";
-	import { Piano } from "$lib/piano";
-	import { PianoRoll } from "$lib/pianoRoll";
-	import { PianoKeys } from "$lib/pianoKeys";
+	import { readMidiFile } from "$lib/ts/notes";
+	import { Piano } from "$lib/ts/piano";
+	import { PianoRoll } from "$lib/ts/pianoRoll";
+	import { PianoKeys } from "$lib/ts/pianoKeys";
     
     let piano = new Piano(5);
     let pianoRoll = new PianoRoll(piano);
@@ -108,7 +107,7 @@
                 Drop MIDI file here
             </div>
         </div>
-        <div id="note-shadow"></div>
+        <div class="note-shadow"></div>
         <canvas id="notes"></canvas>
     </div>
     <canvas id="piano" class="keys"></canvas>

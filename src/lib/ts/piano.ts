@@ -1,4 +1,4 @@
-import { MidiNoteOff, MidiNoteOn, middleCMidiNumber } from "./constants";
+import { MidiNoteOff, MidiNoteOn, middleCMidiNumber } from "./constants/constants";
 
 // get middle c index relative to octave number (including sharp keys)
 function getMiddleCIndex(octaves: number) {
