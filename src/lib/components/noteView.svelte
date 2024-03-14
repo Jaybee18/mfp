@@ -134,3 +134,59 @@
     </div>
     <canvas id="piano" class="keys"></canvas>
 </div>
+
+<style lang="scss">
+    @import 'abstracts/variables';
+
+    .notes-wrapper {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 50px 0;
+    box-sizing: border-box;
+
+    .notes {
+        max-width: 100%;
+        width: 100%;
+        height: fit-content;
+        flex: 1;
+        position: relative;
+
+        .drop-zone {
+            position: absolute;
+            background-color: #4aaaa333;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            border: 2px dashed black;
+            box-sizing: border-box;
+        
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        
+            opacity: 0;
+        }
+        
+        .note-shadow {
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, $background 100%);
+            width: 100%;
+            height: 10%;
+            position: absolute;
+        }
+
+        #notes {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    }
+
+    .keys {
+        display: block;
+        border-radius: 30px;
+        height: 200px;
+    }
+}
+</style>

@@ -28,3 +28,87 @@
         </div>
     </footer>
 </div>
+
+<style lang="scss">
+    @import '../lib/components/abstracts/variables';
+
+    .main {
+    width: 70%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    background-color: var(--background);
+    }
+
+    .content {
+        flex: 1;
+        overflow: hidden;
+    }
+
+    footer {
+        height: 100px;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 20px;
+
+        color: $text-color;
+        font-family: 'Courier New', Courier, monospace;
+
+        div {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            a {
+                text-decoration: none;
+                color: var(--text);
+                margin: 0 5px;
+            }
+
+            a :hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    header {
+        height: 100px;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 20px;
+
+        color: $text-color;
+        font-family: 'Courier New', Courier, monospace;
+
+        * {
+            margin: 0;
+        }
+
+        div {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            * {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            #header-center {
+                flex: 1;
+            
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+
+    }
+</style>
