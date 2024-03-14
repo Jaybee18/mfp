@@ -97,31 +97,6 @@ export function onDragOver(ev: DragEvent) {
 
 // ---
 
-function midiNumberToNote(midi: number, _format?: (note: string, octave: number) => string) {
-    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const octaves = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
-
-    const octave = Math.floor(midi / 12) - 1;
-
-    if (!(octave in octaves)) {
-        console.error("octave ", octave, " not found in valid octaves ", octaves);
-        return "";
-    }
-
-    if (midi < 0 || midi > 127) {
-        console.error("note ", midi, " out of range for 0-127");
-        return "";
-    }
-
-    const note = notes[midi % 12];
-
-    if (_format !== undefined) {
-        return _format(note, octave);
-    }
-
-    return note + octave;
-}
-
 type Note = {
     key: string,
     duration: number, // in ticks

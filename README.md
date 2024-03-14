@@ -25,3 +25,5 @@ A piano learning webapp for midi devices
 - [ ] statistics for played songs (time learned, accuracy, # completed, ...)
 - [ ] switch between midi controller and keyboard
 - [ ] snap midi notes to ticks (12 ticks? 6 ticks?) - option
+- [ ] stop when note isn't hit; resume when hit - option
+- [ ] label keys / notes - option

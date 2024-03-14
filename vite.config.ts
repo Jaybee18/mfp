@@ -2,11 +2,15 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [sveltekit()],
+	plugins: [
+		sveltekit(),
+	],
 	optimizeDeps: {
-		include: ["tone"],
+		include: ['tone'],
 	},
-	resolve: {
-		preserveSymlinks: true,
+	ssr: {
+		noExternal: ['tone']
+	},
+	build: {
 	}
 });

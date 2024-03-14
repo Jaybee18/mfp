@@ -158,7 +158,12 @@ export class PianoRoll {
             if (this.drawNote !== null) {
                 this.drawNote(ctx, x, y, w, h, !this.piano.isNoteNatural(note.midiNumber));
             } else {
-                ctx.fillRect(x + padding/2, y, w - padding, h)
+                //ctx.fillRect(x + padding/2, y, w - padding, h);
+
+                ctx.beginPath();
+                ctx.roundRect(x + padding/2, y, w - padding, h, 5);
+                ctx.stroke();
+                ctx.fill();
             }
         }
     }

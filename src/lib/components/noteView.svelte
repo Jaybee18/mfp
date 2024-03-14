@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" type="module">
 	import { onMount } from "svelte";
     import JZZ from 'jzz';
 
@@ -6,26 +6,31 @@
 	import { Piano } from "$lib/ts/piano";
 	import { PianoRoll } from "$lib/ts/pianoRoll";
 	import { PianoKeys } from "$lib/ts/pianoKeys";
+    import { PianoSynth } from "$lib/ts/audio/pianoSynth";
     
     let piano = new Piano(5);
     let pianoRoll = new PianoRoll(piano);
     let pianoKeys = new PianoKeys(piano);
+    let pianoSynth = new PianoSynth(piano);
+
+    let audioContext;
 
     const updatePianoKeys = () => {
         pianoKeys.draw();
     }
-
+    
     const onMidiIn = (e: MIDIMessageEvent) => {
         piano.midiEvent(e);
-
+        pianoSynth.midiEvent(e);
+        
         // show pressed keys even when no midi is playing
         requestAnimationFrame(updatePianoKeys);
-
+        
         if (!pianoRoll.isPlaying() && pianoRoll.hasNotes()) {
             pianoRoll.play();
         }
     }
-
+    
     const startMidiListen = (midiAcess: WebMidi.MIDIAccess) => {
         const inputs = midiAcess.inputs;
 
@@ -41,7 +46,10 @@
         console.log("midi access denied");
     }
 
-    JZZ.requestMIDIAccess().then(startMidiListen, midiAccessDenied);
+    const connectMidi = () => {
+        JZZ.requestMIDIAccess().then(startMidiListen, midiAccessDenied);
+    };
+
 
     const onDrop = (e: DragEvent) => {
         e.preventDefault();
@@ -62,7 +70,19 @@
         c.height = c.clientHeight;
     }
 
-    onMount(() => {
+    const setupAudio = async (e: MouseEvent) => {
+        audioContext = new AudioContext();
+        audioContext.suspend();
+
+        const Tone = await import('tone');
+        Tone.start();
+        const s = new Tone.PolySynth().toDestination();
+        pianoSynth.setSynth(s);
+
+        console.log("audio setup successful")!
+    };
+
+    onMount(async () => {
         const pianoRollCanvas = document.getElementById("notes") as HTMLCanvasElement;
         const pianoKeysCanvas = document.getElementById("piano") as HTMLCanvasElement;
 
@@ -108,6 +128,8 @@
             </div>
         </div>
         <div class="note-shadow"></div>
+        <button on:click={setupAudio} style="position: absolute; width: 100px; height: 50px;">setup audio</button>
+        <button on:click={connectMidi} style="position: absolute; top: 55px; width: 100px; height: 50px;">connect midi</button>
         <canvas id="notes"></canvas>
     </div>
     <canvas id="piano" class="keys"></canvas>
