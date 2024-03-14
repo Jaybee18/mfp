@@ -1,0 +1,114 @@
+header {
+  height: 100px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 20px;
+  color: #646669;
+  font-family: "Courier New", Courier, monospace;
+}
+header * {
+  margin: 0;
+}
+header div {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+header div * {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+header div #header-center {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+footer {
+  height: 100px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 20px;
+  color: #646669;
+  font-family: "Courier New", Courier, monospace;
+}
+footer div {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+footer div a {
+  text-decoration: none;
+  color: var(--text);
+  margin: 0 5px;
+}
+footer div a :hover {
+  text-decoration: underline;
+}
+
+.main {
+  width: 70%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.notes-wrapper {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 50px 0;
+  box-sizing: border-box;
+}
+.notes-wrapper .notes {
+  max-width: 100%;
+  width: 100%;
+  height: fit-content;
+  flex: 1;
+  position: relative;
+}
+.notes-wrapper .notes .drop-zone {
+  position: absolute;
+  background-color: rgba(74, 170, 163, 0.2);
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  border: 2px dashed black;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+}
+.notes-wrapper .notes .note-shadow {
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, #323437 100%);
+  width: 100%;
+  height: 10%;
+  position: absolute;
+}
+.notes-wrapper .notes #notes {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.notes-wrapper .keys {
+  display: block;
+  border-radius: 30px;
+  height: 200px;
+}
+
+/*# sourceMappingURL=main.css.map */
