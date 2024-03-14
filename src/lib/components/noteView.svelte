@@ -7,6 +7,7 @@
 	import { PianoRoll } from "$lib/ts/pianoRoll";
 	import { PianoKeys } from "$lib/ts/pianoKeys";
     import { PianoSynth } from "$lib/ts/audio/pianoSynth";
+	import { canvasScaleFactor } from "$lib/ts/constants/constants";
     
     let piano = new Piano(5);
     let pianoRoll = new PianoRoll(piano);
@@ -25,9 +26,17 @@
         
         // show pressed keys even when no midi is playing
         requestAnimationFrame(updatePianoKeys);
-        
+        play();
+    }
+    
+    const play = () => {  
+        const timeDiv = document.getElementById("playback-time");      
         if (!pianoRoll.isPlaying() && pianoRoll.hasNotes()) {
-            pianoRoll.play();
+            pianoRoll.play(() => {
+                if (timeDiv !== null) {
+                    timeDiv.innerText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s";
+                }
+            });
         }
     }
     
@@ -56,18 +65,18 @@
         onDragLeave(e);
         const file = e.dataTransfer?.files[0];
         if (file !== undefined) {
-            readMidiFile(file, (parsed, ticksPerBeat, bpm) => {
+            readMidiFile(file, (parsed, res) => {
                 pianoRoll.setNotes(parsed);
-                pianoRoll.setBpm(bpm);
-                pianoRoll.setTicksPerBeat(ticksPerBeat);
+                pianoRoll.setBpm(res.bpm);
+                pianoRoll.setTicksPerBeat(res.ticksPerBeat);
                 pianoRoll.draw();
             });
         }
     };
 
     const updateCanvasSize = (c: HTMLCanvasElement) => {
-        c.width = c.clientWidth;
-        c.height = c.clientHeight;
+        c.width = c.clientWidth * canvasScaleFactor;
+        c.height = c.clientHeight * canvasScaleFactor;
     }
 
     const setupAudio = async (e: MouseEvent) => {
@@ -101,11 +110,38 @@
         observer.observe(pianoRollCanvas);
         observer.observe(pianoKeysCanvas);
 
-        pianoRoll.setCanvas(pianoRollCanvas);
-
         pianoKeys.setCanvas(pianoKeysCanvas);
         pianoKeys.draw();
+        
+        pianoRoll.setCanvas(pianoRollCanvas);
+
+
+        const inputField = document.getElementById("midiFileInput");
+        if (inputField !== null) {
+            inputField.onchange = (e: Event) => {
+                if (e.target === null) return;
+                const files = (e.target as HTMLInputElement).files;
+                if (files === null) return;
+                const file = files[0];
+                readMidiFile(file, (parsed, res) => {
+                    pianoRoll.setNotes(parsed);
+                    pianoRoll.setBpm(res.bpm);
+                    pianoRoll.setTicksPerBeat(res.ticksPerBeat);
+                    pianoRoll.draw();
+                
+                    const fileInfoDiv = document.getElementById("file-info");
+                    if (fileInfoDiv !== null) {
+                        fileInfoDiv.innerText = JSON.stringify(res, null, 2);
+                    }
+                });
+            }
+        }
     });
+    
+    const uploadMidi = () => {
+        const inputField = document.getElementById("midiFileInput");
+        inputField?.click();
+    }
 
     // show/hide the midi drop hint
     const onDragEnter = (e: DragEvent) => {
@@ -130,63 +166,82 @@
         <div class="note-shadow"></div>
         <button on:click={setupAudio} style="position: absolute; width: 100px; height: 50px;">setup audio</button>
         <button on:click={connectMidi} style="position: absolute; top: 55px; width: 100px; height: 50px;">connect midi</button>
+        <button on:click={uploadMidi} style="position: absolute; top: 110px; width: 100px; height: 50px;">upload midi<input id="midiFileInput" type="file" style="display: none;" accept="audio/midi"/></button>
+        <button on:click={play} style="position: absolute; top: 165px; width: 100px; height: 50px;">play</button>
+        <div id="file-info"></div>
+        <div id="playback-time"></div>
         <canvas id="notes"></canvas>
     </div>
-    <canvas id="piano" class="keys"></canvas>
+    <canvas id="piano"></canvas>
 </div>
 
 <style lang="scss">
     @import 'abstracts/variables';
 
     .notes-wrapper {
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 50px 0;
-    box-sizing: border-box;
-
-    .notes {
-        max-width: 100%;
-        width: 100%;
-        height: fit-content;
-        flex: 1;
         position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 50px 0;
+        box-sizing: border-box;
 
-        .drop-zone {
-            position: absolute;
-            background-color: #4aaaa333;
+        .notes {
+            max-width: 100%;
             width: 100%;
-            height: 100%;
-            border-radius: 20px;
-            border: 2px dashed black;
-            box-sizing: border-box;
-        
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        
-            opacity: 0;
-        }
-        
-        .note-shadow {
-            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, $background 100%);
-            width: 100%;
-            height: 10%;
-            position: absolute;
+            flex: 1;
+            position: relative;
+
+            .drop-zone {
+                position: absolute;
+                background-color: #4aaaa333;
+                width: 100%;
+                height: 100%;
+                border-radius: 20px;
+                border: 2px dashed black;
+                box-sizing: border-box;
+                
+                display: flex;
+                display: none;
+                justify-content: center;
+                align-items: center;
+            
+                opacity: 0;
+            }
+            
+            .note-shadow {
+                background: linear-gradient(0deg, rgba(0,0,0,0) 0%, $background 100%);
+                width: 100%;
+                height: 10%;
+                position: absolute;
+            }
+
+            #notes {
+                width: 100%;
+                height: 100%;
+                display: block;
+                position: absolute;
+                z-index: -1;
+            }
+
+            #file-info {
+                position: absolute;
+                left: 50%;
+                width: 50%;
+                height: 50%;
+            }
+
+            #playback-time {
+                position: absolute;
+                left: 50%;
+                top: 55%;
+            }
         }
 
-        #notes {
-            width: 100%;
-            height: 100%;
+        #piano {
             display: block;
+            border-radius: 30px;
+            height: 200px;
         }
     }
-
-    .keys {
-        display: block;
-        border-radius: 30px;
-        height: 200px;
-    }
-}
 </style>

@@ -38,7 +38,6 @@ export class PianoKeys {
         
         this.canvas.width = width;
         this.canvas.height = height;
-        //ctx.translate(0.5, 0.5);
         
         const numNaturalKeys = this.piano.octaves * 7 + 1;
         const naturalKeyWidth = width / numNaturalKeys;

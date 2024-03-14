@@ -71,16 +71,32 @@ function parseMidi(parsed: MidiFile) {
     return res;
 }
 
-export function readMidiFile(file: File, onsuccess: (notes: Note[], ticksPerBeat: number, bpm: number) => void) {
+export type MidiFileParseResult = {
+    ticksPerBeat: number,
+    bpm: number,
+    trackCount: number,
+    timeDivision: number,
+    formatType: string,
+}
+
+export function readMidiFile(file: File, onsuccess: (notes: Note[], res: MidiFileParseResult) => void) {
     const reader = new FileReader();
     reader.onload = (e) => {
         const data = e.target?.result;
 
         const midifile = MidiFile(data);
-
+        
         const parsed = parseMidi(midifile);
 
-        onsuccess(parsed, midifile.header.ticksPerBeat, midifile.header.bpm);
+        const res: MidiFileParseResult = {
+            ticksPerBeat: midifile.header.ticksPerBeat,
+            bpm: midifile.header.bpm,
+            trackCount: midifile.header.trackCount,
+            timeDivision: midifile.header.timeDivision,
+            formatType: midifile.header.formatType,
+        }
+
+        onsuccess(parsed, res);
     }
     if (file !== undefined)
         reader.readAsBinaryString(file);
