@@ -1,3 +1,7 @@
+<script lang="ts">
+    import ExternalLink from '$lib/components/ExternalLink.svelte';
+</script>
+
 <div class="main">
     <header>
         <div>
@@ -21,9 +25,9 @@
                 &copy 2024 Jan Bessler
             </div>
             <div>
-                <a href="https://github.com/Jaybee18/mfp">GitHub</a>
-                <a href="https://www.instagram.com/jaybes.mg/">Instagram</a>
-                <a href="https://twitter.com/JanBessler">X</a>
+                <ExternalLink link="https://github.com/Jaybee18/mfp" text="GitHub"/>
+                <ExternalLink link="https://www.instagram.com/jaybes.mg/" text="Instagram"/>
+                <ExternalLink link="https://twitter.com/JanBessler" text="X"/>
             </div>
         </div>
     </footer>
@@ -61,16 +65,6 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-
-            a {
-                text-decoration: none;
-                color: var(--text);
-                margin: 0 5px;
-            }
-
-            a :hover {
-                text-decoration: underline;
-            }
         }
     }
 
