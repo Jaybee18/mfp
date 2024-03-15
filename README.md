@@ -28,3 +28,9 @@ A piano learning webapp for midi devices
 - [ ] snap midi notes to ticks (12 ticks? 6 ticks?) - option
 - [ ] stop when note isn't hit; resume when hit - option
 - [ ] label keys / notes - option
+- [ ] zeit anzeige switch in
+    sekunden
+    beats
+    prozent
+    beats/total beats
+    sekunden/total sekunden

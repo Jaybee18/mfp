@@ -11,6 +11,7 @@ export class PianoRoll {
     public bpm: number = 120;
     public ticksPerBeat: number = 1;
     public viewportTicks: number = 96 * 50;
+    public speedFactor: number = 1;
 
     private naturalKeyWidth: number = 0;
     private sharpKeyWidth: number = 0;
@@ -85,13 +86,13 @@ export class PianoRoll {
                 naturals = 0;
                 break;
             case 1:
-                naturals = 1;
+                naturals = 0;
                 break;
             case 2:
                 naturals = 1;
                 break;
             case 3:
-                naturals = 2;
+                naturals = 1;
                 break;
             case 4:
                 naturals = 2;
@@ -100,19 +101,19 @@ export class PianoRoll {
                 naturals = 3;
                 break;
             case 6:
-                naturals = 4;
+                naturals = 3;
                 break;
             case 7:
                 naturals = 4;
                 break;
             case 8:
-                naturals = 5;
+                naturals = 4;
                 break;
             case 9:
                 naturals = 5;
                 break;
             case 10:
-                naturals = 6;
+                naturals = 5;
                 break;
             case 11:
                 naturals = 6;
@@ -135,7 +136,9 @@ export class PianoRoll {
         const ctx = this.canvas.getContext("2d");
         if (ctx === null) return;
 
-        const tickHeight = this.height / this.viewportTicks;
+        //const tickHeight = this.height / this.viewportTicks;
+        const bps = this.bpm / 60;
+        const tickHeight = this.height / ((secondsPerViewport / bps) * this.ticksPerBeat) / 2;
     
         ctx.clearRect(0, 0, this.width, this.height);
 
@@ -143,8 +146,8 @@ export class PianoRoll {
             ctx.beginPath();
             ctx.strokeStyle = canvasText;
             for (let i = 0; i < (this.time + this.viewportTicks) / this.ticksPerBeat; i++) {
-                ctx.moveTo(0, this.height + this.time - i * this.ticksPerBeat * tickHeight);
-                ctx.lineTo(this.width, this.height + this.time - i * this.ticksPerBeat * tickHeight);
+                ctx.moveTo(0, this.height + (this.time * tickHeight) - i * this.ticksPerBeat * tickHeight);
+                ctx.lineTo(this.width, this.height + (this.time * tickHeight) - i * this.ticksPerBeat * tickHeight);
             }
             ctx.closePath();
             ctx.stroke();
@@ -163,12 +166,12 @@ export class PianoRoll {
             }
 
             const x = this.getNoteX(note.midiNumber);
-            const y = this.height - note.startTime * tickHeight + this.time;
+            const y = this.height - note.startTime * tickHeight + this.time * tickHeight;
             const w = this.getNoteWidth(note.midiNumber)
             const h = note.duration * tickHeight;
 
             // don't render notes that are not in the current viewport
-            if (y > this.height)
+            if (y - h > this.height)
                 continue;
             if (y + h < 0)
                 break;
@@ -181,13 +184,13 @@ export class PianoRoll {
                 //ctx.fillRect(x + padding/2, y, w - padding, h);
 
                 ctx.beginPath();
-                ctx.roundRect(x + padding/2, y, w - padding, h, 5 * canvasScaleFactor);
+                ctx.roundRect(x + padding/2, y - h + 1, w - padding, h - 1, 8 * canvasScaleFactor);
                 ctx.stroke();
                 ctx.fill();
                 ctx.closePath();
             }
 
-            if (y < this.height && y + h > this.height) {
+            if (y - h < this.height && y > this.height) {
                 highlightedNotes.push(note);
             }
         }
@@ -209,6 +212,7 @@ export class PianoRoll {
             ctx.stroke();
             ctx.fill();
             ctx.closePath();
+
         })
         ctx.resetTransform();
     }
@@ -248,14 +252,14 @@ export class PianoRoll {
         const spb = 1 / bps;
         const deltaMs = 1000 / pianoRollFps;
         const deltaBeats = bps * (deltaMs / 1000);
-        this.time += deltaBeats * this.ticksPerBeat;
+        this.time += deltaBeats * this.ticksPerBeat * this.speedFactor;
     }
 
     public play(updateCallback?: Function) {
         this._isPlaying = true;
 
         const intervalTimeout = 1000 / pianoRollFps;
-        const ticksPerUpdate = (this.bpm / 60) * this.ticksPerBeat * ((1000 / pianoRollFps) / 1000);
+        //const ticksPerUpdate = (this.bpm / 60) * this.ticksPerBeat * ((1000 / pianoRollFps) / 1000);
 
         const timer = setInterval(() => {
             if (!this.isPlaying()) {
@@ -265,7 +269,8 @@ export class PianoRoll {
             if (updateCallback !== undefined) {
                 updateCallback();
             }
-            this.time += ticksPerUpdate;
+            //this.time += ticksPerUpdate;
+            this.tick();
             this.draw();
         }, intervalTimeout);
     }
@@ -275,10 +280,10 @@ export class PianoRoll {
     }
 
     public getTimeMs() {
-        const bps = this.bpm / 60;
-        const spb = 1 / bps;
-        const mspb = spb * 1000;
-        const beats = this.time / this.ticksPerBeat;
+        const bps = this.bpm / 60; // 2 bps
+        const spb = 1 / bps; // 0.5 spb
+        const mspb = spb * 1000; // 500 mspb
+        const beats = this.time / this.ticksPerBeat; // ticks / ticks/beat = beats
         return beats * mspb;
     }
 }

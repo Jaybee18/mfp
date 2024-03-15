@@ -216,7 +216,7 @@ export function MidiFile(data) {
 	var header = {
 		'formatType': formatType,
 		'trackCount': trackCount,
-		'ticksPerBeat': ticksPerBeat / 10, // this seems to always be too high by a factor of 10
+		'ticksPerBeat': ticksPerBeat,
 		'timeDivision': timeDivision,
 		'bpm': bpm,
 	}

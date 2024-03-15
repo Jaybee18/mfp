@@ -15,4 +15,4 @@ export const noteHit = "#00eeff";
 export const canvasText = "#646669";
 
 export const pianoRollFps = 120;
-export const secondsPerViewport = 1;
+export const secondsPerViewport = 4;

@@ -154,6 +154,13 @@
     const onDragOver = (e: DragEvent) => {
         e.preventDefault();
     }
+
+    const changeSpeedFactor = (e: Event) => {
+        const content = (e.target as HTMLInputElement).value;
+        if (!isNaN(+content) && Number(content) !== 0) {
+            pianoRoll.speedFactor = Number(content);
+        }
+    }
 </script>
 
 <div class="notes-wrapper">
@@ -168,6 +175,7 @@
         <button on:click={connectMidi} style="position: absolute; top: 55px; width: 100px; height: 50px;">connect midi</button>
         <button on:click={uploadMidi} style="position: absolute; top: 110px; width: 100px; height: 50px;">upload midi<input id="midiFileInput" type="file" style="display: none;" accept="audio/midi"/></button>
         <button on:click={play} style="position: absolute; top: 165px; width: 100px; height: 50px;">play</button>
+        <input id="tempo-scale-factor" placeholder="speed factor" on:input={changeSpeedFactor} style="position: absolute; top: 225px; width: 100px; padding: 0px; margin: 0px; border: none;"/>
         <div id="file-info"></div>
         <div id="playback-time"></div>
         <canvas id="notes"></canvas>
