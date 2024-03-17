@@ -194,7 +194,7 @@
         </div>
         <div class="note-shadow"></div>
         <div id="dev-tools">
-            <!-- <Button text="setup audio" onClick={setupAudio}/> -->
+            <Button text="setup audio" onClick={setupAudio}/>
             <Button text="connect midi" onClick={connectMidi}/>
             <!-- <Button text="upload midi" onClick={uploadMidi}/> -->
             <Button text="testt"/>
