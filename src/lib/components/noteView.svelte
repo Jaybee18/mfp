@@ -8,8 +8,8 @@
 	import { PianoKeys } from "$lib/ts/pianoKeys";
     import { PianoSynth } from "$lib/ts/audio/pianoSynth";
 	import { canvasScaleFactor } from "$lib/ts/constants/constants";
-	import ValueSlider from "./ValueSlider.svelte";
-	import Button from "./Button.svelte";
+	import ValueSlider from "$lib/components/ValueSlider.svelte";
+	import Button from "$lib/components/Button.svelte";
     
     let playButtonText: string = "play";
     let playbackTime: HTMLElement;
@@ -189,11 +189,11 @@
             <Button text="setup audio" onClick={setupAudio}/>
             <Button text="connect midi" onClick={connectMidi}/>
             <Button text="upload midi" onClick={uploadMidi}/>
-            <!-- <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
+            <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
             <Button onClick={() => {pianoRoll.isPlaying() ? stop() : play()}} bind:text={playButtonText} />
             <div bind:this={playbackTime}></div>
             <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
-            <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/> -->
+            <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
         </div>
         <canvas bind:this={pianoRollCanvas} id="notes"></canvas>
     </div>
