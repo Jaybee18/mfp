@@ -2,4 +2,4 @@
     import NoteView from '$lib/components/noteView.svelte';
 </script>
 
-<!-- <NoteView /> -->
+<NoteView />
