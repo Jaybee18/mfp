@@ -3,11 +3,11 @@
     export let onClick: (e: MouseEvent) => void = () => {};
 </script>
 
-<div>test</div>
+<!-- <div>test</div> -->
 
-<!-- <button on:click={onClick}>
+<button on:click={onClick}>
     {text}
-</button> -->
+</button>
 
 <!-- <style lang="scss">
     @import './abstracts/variables';
