@@ -175,6 +175,14 @@
         pianoRoll.setBpm(value);
         pianoRoll.draw();
     }
+
+    const togglePlay = () => {
+        if (pianoRoll.isPlaying()) {
+            stop();
+        } else {
+            play();
+        }
+    };
 </script>
 
 <div class="notes-wrapper">
@@ -186,11 +194,11 @@
         </div>
         <div class="note-shadow"></div>
         <div id="dev-tools">
-            <!-- <Button text="setup audio" onClick={setupAudio}/>
+            <Button text="setup audio" onClick={setupAudio}/>
             <Button text="connect midi" onClick={connectMidi}/>
-            <Button text="upload midi" onClick={uploadMidi}/> -->
+            <Button text="upload midi" onClick={uploadMidi}/>
             <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
-            <!-- <Button onClick={() => {pianoRoll.isPlaying() ? stop() : play()}} bind:text={playButtonText} /> -->
+            <Button onClick={togglePlay} bind:text={playButtonText} />
             <div bind:this={playbackTime}></div>
             <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
             <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
