@@ -71,7 +71,7 @@
         console.log("midi access denied");
     }
 
-    const connectMidi = () => {
+    const connectMidi = (e: MouseEvent) => {
         JZZ.requestMIDIAccess().then(startMidiListen, midiAccessDenied);
     };
 
@@ -159,7 +159,7 @@
         }
     });
     
-    const uploadMidi = () => {
+    const uploadMidi = (e: MouseEvent) => {
         midiFileInput.click();
     }
 
@@ -176,7 +176,7 @@
         pianoRoll.draw();
     }
 
-    const togglePlay = () => {
+    const togglePlay = (e: MouseEvent) => {
         if (pianoRoll.isPlaying()) {
             stop();
         } else {
@@ -194,9 +194,9 @@
         </div>
         <div class="note-shadow"></div>
         <div id="dev-tools">
-            <!-- <Button text="setup audio" onClick={setupAudio}/>
+            <!-- <Button text="setup audio" onClick={setupAudio}/> -->
             <Button text="connect midi" onClick={connectMidi}/>
-            <Button text="upload midi" onClick={uploadMidi}/> -->
+            <!-- <Button text="upload midi" onClick={uploadMidi}/> -->
             <Button text="testt"/>
             <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
             <!-- <Button onClick={togglePlay} bind:text={playButtonText} /> -->
