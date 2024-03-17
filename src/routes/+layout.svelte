@@ -36,13 +36,18 @@
 <style lang="scss">
     @import '../lib/components/abstracts/variables';
 
+    // cant set the body background color in the main html file
+    :global(body) {
+        background-color: $background;
+    }
+
     .main {
     width: 70%;
     height: 100%;
     display: flex;
     flex-direction: column;
 
-    background-color: var(--background);
+    background-color: $background;
     }
 
     .content {

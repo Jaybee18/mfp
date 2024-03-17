@@ -136,9 +136,8 @@ export class PianoRoll {
         const ctx = this.canvas.getContext("2d");
         if (ctx === null) return;
 
-        //const tickHeight = this.height / this.viewportTicks;
         const bps = this.bpm / 60;
-        const tickHeight = this.height / ((secondsPerViewport / bps) * this.ticksPerBeat) / 2;
+        const tickHeight = this.height / ((secondsPerViewport * bps) * this.ticksPerBeat) / 2;
     
         ctx.clearRect(0, 0, this.width, this.height);
 
@@ -147,10 +146,10 @@ export class PianoRoll {
             ctx.strokeStyle = canvasText;
             ctx.font = "35px Courier New, Courier, monospace";
             ctx.fillStyle = canvasText;
-            for (let i = 0; i < (this.time + this.viewportTicks) / this.ticksPerBeat; i++) {
-                ctx.moveTo(0, this.height + (this.time * tickHeight) - i * this.ticksPerBeat * tickHeight);
-                ctx.lineTo(this.width, this.height + (this.time * tickHeight) - i * this.ticksPerBeat * tickHeight);
-                ctx.strokeText(String(i), 10, this.height + (this.time * tickHeight) - i * this.ticksPerBeat * tickHeight + 35);
+            for (let i = 0; i < (this.height / tickHeight) / this.ticksPerBeat; i++) {
+                ctx.moveTo(0, this.height + (this.time % this.ticksPerBeat) * tickHeight - i * this.ticksPerBeat * tickHeight);
+                ctx.lineTo(this.width, this.height + (this.time % this.ticksPerBeat) * tickHeight - i * this.ticksPerBeat * tickHeight);
+                ctx.strokeText(String(i), 10, this.height + (this.time % this.ticksPerBeat) * tickHeight - i * this.ticksPerBeat * tickHeight + 35);
             }
             ctx.closePath();
             ctx.stroke();
@@ -232,8 +231,6 @@ export class PianoRoll {
 
     public setBpm(bpm: number) {
         this.bpm = bpm;
-        
-        console.log("bpm: ", this.bpm);
     }
 
     public setTicksPerBeat(ticks: number) {

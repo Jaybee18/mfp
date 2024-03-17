@@ -8,7 +8,17 @@
 	import { PianoKeys } from "$lib/ts/pianoKeys";
     import { PianoSynth } from "$lib/ts/audio/pianoSynth";
 	import { canvasScaleFactor } from "$lib/ts/constants/constants";
+	import ValueSlider from "$lib/components/ValueSlider.svelte";
+	import Button from "$lib/components/Button.svelte";
+    import * as Tone from 'tone';
     
+    let playButtonText: string = "play";
+    let playbackTime: HTMLElement;
+    let pianoRollCanvas: HTMLCanvasElement;
+    let pianoKeysCanvas: HTMLCanvasElement;
+    let midiFileInput: HTMLInputElement;
+    let midiDropZone: HTMLElement;
+
     let piano = new Piano(5);
     let pianoRoll = new PianoRoll(piano);
     let pianoKeys = new PianoKeys(piano);
@@ -25,20 +35,27 @@
         pianoSynth.midiEvent(e);
         
         // show pressed keys even when no midi is playing
-        requestAnimationFrame(updatePianoKeys);
+        //requestAnimationFrame(updatePianoKeys);
+        updatePianoKeys();
         play();
     }
     
-    const play = () => {  
-        const timeDiv = document.getElementById("playback-time");      
+    const play = () => {   
         if (!pianoRoll.isPlaying() && pianoRoll.hasNotes()) {
             pianoRoll.play(() => {
-                if (timeDiv !== null) {
-                    timeDiv.innerText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s";
+                if (playbackTime !== null) {
+                    playbackTime.innerText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s";
                 }
             });
+
+            playButtonText = "stop";
         }
     }
+
+    const stop = () => {
+        pianoRoll.stop();        
+        playButtonText = "play";
+    };
     
     const startMidiListen = (midiAcess: WebMidi.MIDIAccess) => {
         const inputs = midiAcess.inputs;
@@ -55,14 +72,13 @@
         console.log("midi access denied");
     }
 
-    const connectMidi = () => {
+    const connectMidi = (e: MouseEvent) => {
         JZZ.requestMIDIAccess().then(startMidiListen, midiAccessDenied);
     };
 
 
     const onDrop = (e: DragEvent) => {
         e.preventDefault();
-        onDragLeave(e);
         const file = e.dataTransfer?.files[0];
         if (file !== undefined) {
             readMidiFile(file, (parsed, res) => {
@@ -79,22 +95,28 @@
         c.height = c.clientHeight * canvasScaleFactor;
     }
 
-    const setupAudio = async (e: MouseEvent) => {
+    const _setupAudio = async () => {
         audioContext = new AudioContext();
         audioContext.suspend();
-
-        const Tone = await import('tone');
+    
         Tone.start();
         const s = new Tone.PolySynth().toDestination();
         pianoSynth.setSynth(s);
+    
+        console.log("audio setup successful");
+    };
 
-        console.log("audio setup successful")!
+    const setupAudio = (e: MouseEvent) => {
+        try {
+            _setupAudio().then().catch((e) => {
+                console.log(e);
+            });
+        } catch (e: any) {
+            console.log(e)
+        }
     };
 
     onMount(async () => {
-        const pianoRollCanvas = document.getElementById("notes") as HTMLCanvasElement;
-        const pianoKeysCanvas = document.getElementById("piano") as HTMLCanvasElement;
-
         updateCanvasSize(pianoRollCanvas);
         updateCanvasSize(pianoKeysCanvas);
 
@@ -115,76 +137,89 @@
         
         pianoRoll.setCanvas(pianoRollCanvas);
 
+        midiFileInput.onchange = (e: Event) => {
+            if (e.target === null) return;
+            const files = (e.target as HTMLInputElement).files;
+            if (files === null) return;
+            const file = files[0];
+            readMidiFile(file, (parsed, res) => {
+                pianoRoll.setNotes(parsed);
+                pianoRoll.setBpm(res.bpm);
+                pianoRoll.setTicksPerBeat(res.ticksPerBeat);
+                pianoRoll.draw();
+            
+                console.log(JSON.stringify(res, null, 2));
+            });
+        };
 
-        const inputField = document.getElementById("midiFileInput");
-        if (inputField !== null) {
-            inputField.onchange = (e: Event) => {
-                if (e.target === null) return;
-                const files = (e.target as HTMLInputElement).files;
-                if (files === null) return;
-                const file = files[0];
-                readMidiFile(file, (parsed, res) => {
-                    pianoRoll.setNotes(parsed);
-                    pianoRoll.setBpm(res.bpm);
-                    pianoRoll.setTicksPerBeat(res.ticksPerBeat);
-                    pianoRoll.draw();
-                
-                    const fileInfoDiv = document.getElementById("file-info");
-                    if (fileInfoDiv !== null) {
-                        fileInfoDiv.innerText = JSON.stringify(res, null, 2);
-                    }
-                });
+        // show/hide the midi drop hint
+        const root = document.getElementsByTagName("html")[0];
+        if (midiDropZone !== null) {
+            root.ondragenter = (e: DragEvent) => {
+                // --- TODO check that the file is actually a midi file ---
+                midiDropZone.style.display = "block";
+            };
+            root.ondragleave = (e: DragEvent) => {
+                if ((e.currentTarget as HTMLElement).contains((e.relatedTarget as HTMLElement))) return;
+                midiDropZone.style.display = "none";
+            };
+            root.ondrop = (e: DragEvent) => {
+                midiDropZone.style.display = "none";
             }
         }
     });
     
-    const uploadMidi = () => {
-        const inputField = document.getElementById("midiFileInput");
-        inputField?.click();
+    const uploadMidi = (e: MouseEvent) => {
+        midiFileInput.click();
     }
-
-    // show/hide the midi drop hint
-    const onDragEnter = (e: DragEvent) => {
-        (e.target as HTMLElement).style.opacity = "1";
-    };
-    const onDragLeave = (e: DragEvent) => {
-        (e.target as HTMLElement).style.opacity = "0";
-    };
 
     const onDragOver = (e: DragEvent) => {
         e.preventDefault();
     }
 
-    const changeSpeedFactor = (e: Event) => {
-        const content = (e.target as HTMLInputElement).value;
-        if (!isNaN(+content) && Number(content) !== 0) {
-            pianoRoll.speedFactor = Number(content);
-        }
+    const changeSpeedFactor = (factor: number) => {
+        pianoRoll.speedFactor = factor;
     }
+
+    const onChangeValue = (value: number) => {
+        pianoRoll.setBpm(value);
+        pianoRoll.draw();
+    }
+
+    const togglePlay = (e: MouseEvent) => {
+        if (pianoRoll.isPlaying()) {
+            stop();
+        } else {
+            play();
+        }
+    };
 </script>
 
 <div class="notes-wrapper">
     <div class="notes">
-        <div class="drop-zone" on:drop={onDrop} on:dragover={onDragOver} on:dragenter={onDragEnter} on:dragleave={onDragLeave} aria-hidden="true">
+        <div bind:this={midiDropZone} class="drop-zone" on:drop={onDrop} on:dragover={onDragOver} aria-hidden="true">
             <div>
                 Drop MIDI file here
             </div>
         </div>
         <div class="note-shadow"></div>
-        <button on:click={setupAudio} style="position: absolute; width: 100px; height: 50px;">setup audio</button>
-        <button on:click={connectMidi} style="position: absolute; top: 55px; width: 100px; height: 50px;">connect midi</button>
-        <button on:click={uploadMidi} style="position: absolute; top: 110px; width: 100px; height: 50px;">upload midi<input id="midiFileInput" type="file" style="display: none;" accept="audio/midi"/></button>
-        <button on:click={play} style="position: absolute; top: 165px; width: 100px; height: 50px;">play</button>
-        <input id="tempo-scale-factor" placeholder="speed factor" on:input={changeSpeedFactor} style="position: absolute; top: 225px; width: 100px; padding: 0px; margin: 0px; border: none;"/>
-        <div id="file-info"></div>
-        <div id="playback-time"></div>
-        <canvas id="notes"></canvas>
+        <div id="dev-tools">
+            <Button text="setup audio" onClick={setupAudio}/>
+            <Button text="connect midi" onClick={connectMidi}/>
+            <Button text="upload midi" onClick={uploadMidi}/>
+            <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
+            <Button onClick={togglePlay} bind:text={playButtonText} />
+            <div bind:this={playbackTime}></div>
+            <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
+            <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
+        </div>
+        <canvas bind:this={pianoRollCanvas} id="notes"></canvas>
     </div>
-    <canvas id="piano"></canvas>
+    <canvas bind:this={pianoKeysCanvas} id="piano"></canvas>
 </div>
 
 <style lang="scss">
-    @import 'abstracts/variables';
+    @import './abstracts/variables';
 
     .notes-wrapper {
         position: relative;
@@ -208,13 +243,12 @@
                 border-radius: 20px;
                 border: 2px dashed black;
                 box-sizing: border-box;
+                z-index: 1;
                 
                 display: flex;
                 display: none;
                 justify-content: center;
                 align-items: center;
-            
-                opacity: 0;
             }
             
             .note-shadow {
@@ -222,6 +256,19 @@
                 width: 100%;
                 height: 10%;
                 position: absolute;
+                z-index: 1;
+            }
+
+            #dev-tools {
+                position: absolute;
+                display: grid;
+                grid-template-columns: 100px;
+                row-gap: 5px;
+                width: 50%;
+                height: 100%;
+                z-index: 2;
+
+                justify-content: stretch;
             }
 
             #notes {
@@ -229,20 +276,6 @@
                 height: 100%;
                 display: block;
                 position: absolute;
-                z-index: -1;
-            }
-
-            #file-info {
-                position: absolute;
-                left: 50%;
-                width: 50%;
-                height: 50%;
-            }
-
-            #playback-time {
-                position: absolute;
-                left: 50%;
-                top: 55%;
             }
         }
 
@@ -250,6 +283,9 @@
             display: block;
             border-radius: 30px;
             height: 200px;
+
+            border: 1px solid $text-color;
+            box-sizing: border-box;
         }
     }
 </style>
