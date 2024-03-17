@@ -145,9 +145,12 @@ export class PianoRoll {
         if (this.notes.length > 0) {
             ctx.beginPath();
             ctx.strokeStyle = canvasText;
+            ctx.font = "35px Courier New, Courier, monospace";
+            ctx.fillStyle = canvasText;
             for (let i = 0; i < (this.time + this.viewportTicks) / this.ticksPerBeat; i++) {
                 ctx.moveTo(0, this.height + (this.time * tickHeight) - i * this.ticksPerBeat * tickHeight);
                 ctx.lineTo(this.width, this.height + (this.time * tickHeight) - i * this.ticksPerBeat * tickHeight);
+                ctx.strokeText(String(i), 10, this.height + (this.time * tickHeight) - i * this.ticksPerBeat * tickHeight + 35);
             }
             ctx.closePath();
             ctx.stroke();
