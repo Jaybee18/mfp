@@ -11,6 +11,11 @@ export default defineConfig({
 	ssr: {
 		noExternal: ['tone']
 	},
+	server: {
+		fs: {
+			allow: ["/static"]
+		}
+	},
 	build: {
 	}
 });
