@@ -107,7 +107,7 @@
     };
 
     const setupAudio = (e: MouseEvent) => {
-        _setupAudio();
+        //_setupAudio();
     };
 
     onMount(async () => {
@@ -200,10 +200,10 @@
         <div id="dev-tools">
             <Button text="setup audio" onClick={setupAudio}/>
             <Button text="connect midi" onClick={connectMidi}/>
-            <Button text="upload midi" onClick={uploadMidi}/>
+            <!-- <Button text="upload midi" onClick={uploadMidi}/> -->
             <Button text="testt"/>
             <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
-            <Button onClick={togglePlay} bind:text={playButtonText} />
+            <!-- <Button onClick={togglePlay} bind:text={playButtonText} /> -->
             <div bind:this={playbackTime}></div>
             <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
             <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>

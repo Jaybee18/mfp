@@ -52,7 +52,7 @@
     </p>
 </div>
 
-<!-- <style lang="scss">
+<style lang="scss">
     @import './abstracts/variables';
     
     p {
@@ -73,4 +73,4 @@
             user-select: none;
         }
     }
-</style> -->
+</style>
