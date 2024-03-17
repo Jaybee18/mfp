@@ -198,7 +198,7 @@
             <Button text="connect midi" onClick={connectMidi}/>
             <Button text="upload midi" onClick={uploadMidi}/>
             <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
-            <Button onClick={togglePlay} bind:text={playButtonText} />
+            <!-- <Button onClick={togglePlay} bind:text={playButtonText} /> -->
             <div bind:this={playbackTime}></div>
             <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
             <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
