@@ -7,7 +7,7 @@
     {text}
 </button>
 
-<style lang="scss">
+<!-- <style lang="scss">
     @import './abstracts/variables';
 
     button {
@@ -31,4 +31,4 @@
     button:active {
         box-shadow: none;
     }
-</style>
+</style> -->
