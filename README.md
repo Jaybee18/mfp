@@ -7,9 +7,11 @@ A piano learning webapp for midi devices
 - [x] play midi
 
 ### v0.2
-- [ ] adjust viewport (ticks shown)
+- [x] adjust viewport (ticks shown)
 - [x] adjust playback speed
 - [x] better ui?
+![image](https://github.com/Jaybee18/mfp/assets/64578396/67f58caa-867c-40cf-ae66-6ac784908bf0)
+
 
 ### v0.3
 - [ ] map midi buttons to play/stop/restart
