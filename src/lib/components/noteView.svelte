@@ -107,7 +107,13 @@
     };
 
     const setupAudio = (e: MouseEvent) => {
-        //_setupAudio();
+        try {
+            _setupAudio().then().catch((e) => {
+                console.log(e);
+            });
+        } catch (e: any) {
+            console.log(e)
+        }
     };
 
     onMount(async () => {
