@@ -10,6 +10,7 @@
 	import { canvasScaleFactor } from "$lib/ts/constants/constants";
 	import ValueSlider from "$lib/components/ValueSlider.svelte";
 	import Button from "$lib/components/Button.svelte";
+    import * as Tone from 'tone';
     
     let playButtonText: string = "play";
     let playbackTime: HTMLElement;
@@ -98,7 +99,6 @@
         audioContext = new AudioContext();
         audioContext.suspend();
     
-        const Tone = await import('tone');
         Tone.start();
         const s = new Tone.PolySynth().toDestination();
         pianoSynth.setSynth(s);
