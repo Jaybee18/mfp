@@ -8,7 +8,7 @@
 </button>
 
 <style lang="scss">
-    @import 'abstracts/variables';
+    @import './abstracts/variables';
 
     button {
         background-color: white;

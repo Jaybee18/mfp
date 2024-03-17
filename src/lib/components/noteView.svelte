@@ -185,7 +185,7 @@
             </div>
         </div>
         <div class="note-shadow"></div>
-        <!-- <div id="dev-tools">
+        <div id="dev-tools">
             <Button text="setup audio" onClick={setupAudio}/>
             <Button text="connect midi" onClick={connectMidi}/>
             <Button text="upload midi" onClick={uploadMidi}/>
@@ -194,7 +194,7 @@
             <div bind:this={playbackTime}></div>
             <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
             <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
-        </div> -->
+        </div>
         <canvas bind:this={pianoRollCanvas} id="notes"></canvas>
     </div>
     <canvas bind:this={pianoKeysCanvas} id="piano"></canvas>
