@@ -197,6 +197,7 @@
             <!-- <Button text="setup audio" onClick={setupAudio}/>
             <Button text="connect midi" onClick={connectMidi}/>
             <Button text="upload midi" onClick={uploadMidi}/> -->
+            <Button text="testt"/>
             <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
             <!-- <Button onClick={togglePlay} bind:text={playButtonText} /> -->
             <div bind:this={playbackTime}></div>
