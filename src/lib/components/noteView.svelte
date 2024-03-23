@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
     import JZZ from 'jzz';
 
-	import { readMidiFile } from "$lib/ts/notes";
+	import { readMidiFile, type MidiFileParseResult } from "$lib/ts/notes";
 	import { Piano } from "$lib/ts/piano";
 	import { PianoRoll } from "$lib/ts/pianoRoll";
 	import { PianoKeys } from "$lib/ts/pianoKeys";
@@ -11,9 +11,14 @@
 	import ValueSlider from "$lib/components/ValueSlider.svelte";
 	import Button from "$lib/components/Button.svelte";
     import * as Tone from 'tone';
-    
+	import Text from "./Text.svelte";
+	import ToggleButton from "./ToggleButton.svelte";
+
+    let title: HTMLElement | null;
+
     let playButtonText: string = "play";
-    let playbackTime: HTMLElement;
+    let playbackTimeText: string = "0";
+    let playPianoNotes: boolean = true;
     let pianoRollCanvas: HTMLCanvasElement;
     let pianoKeysCanvas: HTMLCanvasElement;
     let midiFileInput: HTMLInputElement;
@@ -24,7 +29,15 @@
     let pianoKeys = new PianoKeys(piano);
     let pianoSynth = new PianoSynth(piano);
 
+    pianoRoll.playNotes = playPianoNotes;
+    piano.addOnNoteListener((midi, release) => {
+        if (!release) {
+            pianoSynth.playNote(midi);
+        }
+    });
+
     let audioContext;
+    let midiFile: MidiFileParseResult | null = null;
 
     const updatePianoKeys = () => {
         pianoKeys.draw();
@@ -35,17 +48,15 @@
         pianoSynth.midiEvent(e);
         
         // show pressed keys even when no midi is playing
-        //requestAnimationFrame(updatePianoKeys);
         updatePianoKeys();
         play();
     }
-    
+
     const play = () => {   
         if (!pianoRoll.isPlaying() && pianoRoll.hasNotes()) {
             pianoRoll.play(() => {
-                if (playbackTime !== null) {
-                    playbackTime.innerText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s";
-                }
+                playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s / " + String((pianoRoll.toTimeMs(midiFile?.length)/1000).toFixed(2)) + "s";
+                updatePianoKeys();
             });
 
             playButtonText = "stop";
@@ -82,10 +93,16 @@
         const file = e.dataTransfer?.files[0];
         if (file !== undefined) {
             readMidiFile(file, (parsed, res) => {
+                midiFile = res;
+
                 pianoRoll.setNotes(parsed);
                 pianoRoll.setBpm(res.bpm);
                 pianoRoll.setTicksPerBeat(res.ticksPerBeat);
                 pianoRoll.draw();
+
+                if (title !== null) {
+                    title.innerText = file.name;
+                }
             });
         }
     };
@@ -117,6 +134,8 @@
     };
 
     onMount(async () => {
+        title = document.getElementById("header-center");
+
         updateCanvasSize(pianoRollCanvas);
         updateCanvasSize(pianoKeysCanvas);
 
@@ -143,12 +162,17 @@
             if (files === null) return;
             const file = files[0];
             readMidiFile(file, (parsed, res) => {
+                midiFile = res;
+
                 pianoRoll.setNotes(parsed);
                 pianoRoll.setBpm(res.bpm);
                 pianoRoll.setTicksPerBeat(res.ticksPerBeat);
                 pianoRoll.draw();
             
                 console.log(JSON.stringify(res, null, 2));
+                if (title !== null) {
+                    title.innerText = file.name;
+                }
             });
         };
 
@@ -178,7 +202,7 @@
     }
 
     const changeSpeedFactor = (factor: number) => {
-        pianoRoll.speedFactor = factor;
+        pianoRoll.setSpeedFactor(factor);
     }
 
     const onChangeValue = (value: number) => {
@@ -191,6 +215,20 @@
             stop();
         } else {
             play();
+        }
+    };
+
+    const resetToStart = () => {
+        piano.reset();
+        pianoRoll.reset();
+        pianoKeys.draw();
+        playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s";
+    }
+
+    const togglePlayingPianoNotes = () => {
+        pianoRoll.playNotes = playPianoNotes;
+        if (!playPianoNotes) {
+            piano.reset();
         }
     };
 </script>
@@ -209,7 +247,9 @@
             <Button text="upload midi" onClick={uploadMidi}/>
             <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
             <Button onClick={togglePlay} bind:text={playButtonText} />
-            <div bind:this={playbackTime}></div>
+            <Button text="reset" onClick={resetToStart} />
+            <ToggleButton text="play notes" bind:active={playPianoNotes} onClick={togglePlayingPianoNotes}/>
+            <Text bind:content={playbackTimeText} />
             <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
             <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
         </div>
@@ -264,11 +304,17 @@
                 display: grid;
                 grid-template-columns: 100px;
                 row-gap: 5px;
-                width: 50%;
+                width: 200px;
                 height: 100%;
                 z-index: 2;
 
-                justify-content: stretch;
+                padding: 10px;
+                box-sizing: border-box;
+
+                justify-content: center;
+
+                // background-color: black;
+                // outline: 1px solid white;
             }
 
             #notes {

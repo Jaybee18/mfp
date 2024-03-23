@@ -71,12 +71,21 @@ function parseMidi(parsed: MidiFile) {
     return res;
 }
 
+function getTrackLength(track: Note[]) {
+    let latestNote = track[0];
+    track.forEach(note => {
+        if (note.startTime > latestNote.startTime) latestNote = note;
+    });
+    return latestNote.startTime + latestNote.duration;
+}
+
 export type MidiFileParseResult = {
     ticksPerBeat: number,
     bpm: number,
     trackCount: number,
     timeDivision: number,
     formatType: string,
+    length: number, // in ticks
 }
 
 export function readMidiFile(file: File, onsuccess: (notes: Note[], res: MidiFileParseResult) => void) {
@@ -94,6 +103,7 @@ export function readMidiFile(file: File, onsuccess: (notes: Note[], res: MidiFil
             trackCount: midifile.header.trackCount,
             timeDivision: midifile.header.timeDivision,
             formatType: midifile.header.formatType,
+            length: getTrackLength(parsed),
         }
 
         onsuccess(parsed, res);

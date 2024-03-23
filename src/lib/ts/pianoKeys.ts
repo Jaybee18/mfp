@@ -1,4 +1,6 @@
-import { pianoKeyOutlineWidth, sharpKeyHeightFactor, sharpKeyWidthFactor } from "./constants/constants";
+import { Color } from "./Color";
+import { highlight, highlightDark, pianoKeyOutlineWidth, sharpKeyHeightFactor, sharpKeyWidthFactor } from "./constants/constants";
+import { midiNumberToNote } from "./notes";
 import type { Piano } from "./piano";
 
 export class PianoKeys {
@@ -47,12 +49,17 @@ export class PianoKeys {
         let absoluteIndex = 0;
         for (let i = 0; i < numNaturalKeys; i++) {
             if (this.piano.isNoteDown(this.piano.getMidiAtIndex(absoluteIndex))) {
-                ctx.fillStyle = "#aaffaa";
+                ctx.fillStyle = highlight; //"#aaffaa";
             } else {
                 ctx.fillStyle = "#fff";
             }
 
             ctx.fillRect(naturalKeyWidth * i, 0, naturalKeyWidth, height);
+
+            // key label
+            ctx.fillStyle = "#000000";
+            ctx.font = Math.floor(naturalKeyWidth*0.6).toString() + "px Courier New, Courier, monospace";
+            ctx.fillText(midiNumberToNote(this.piano.getMidiAtIndex(absoluteIndex)), naturalKeyWidth * i + 3.5, height - 5, naturalKeyWidth);
 
             if (i % 7 === 2 || i % 7 === 6 || i === numNaturalKeys - 1) {
                 absoluteIndex++;
@@ -72,7 +79,7 @@ export class PianoKeys {
         absoluteIndex = 1;
         for (let i = 0; i < numNaturalKeys; i++) {
             if (this.piano.isNoteDown(this.piano.getMidiAtIndex(absoluteIndex))) {
-                ctx.fillStyle = "#aaffaa";
+                ctx.fillStyle = highlightDark; //"#aaffaa";
             } else {
                 ctx.fillStyle = "#000";
             }

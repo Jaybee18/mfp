@@ -6,13 +6,15 @@
     <header>
         <div>
             <h1>
-                mfp
+                <a href="/">mfp</a>
             </h1>
             <div id="header-center">
-                Never Gonna Give You Up - Rick Astly
+                Title
             </div>
-            <div>
-                placeholder
+            <div id="routes">
+                <a href="/about">about</a>
+                <a href="/settings">settings</a>
+                <a href="/account">account</a>
             </div>
         </div>
     </header>
@@ -52,7 +54,15 @@
 
     .content {
         flex: 1;
-        overflow: hidden;
+    }
+
+    a {
+        color: $text-color;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
     }
 
     footer {
@@ -106,6 +116,16 @@
                 flex-direction: row;
                 justify-content: center;
                 align-items: center;
+            }
+        }
+
+        #routes {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            a {
+                margin: 0 5px;
             }
         }
 

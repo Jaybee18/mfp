@@ -18,6 +18,7 @@
         border-radius: 50px;
         height: 30px;
         margin: 1px;
+        min-width: 100px;
 
         cursor: pointer;
 

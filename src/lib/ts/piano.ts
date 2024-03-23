@@ -29,6 +29,7 @@ export class Piano {
     private leftMostKeyMidi: number;
 
     private pressedNotes: number[] = [];
+    private onNoteListeners: ((midi: number, release: boolean) => void)[] = [];
 
     constructor(octaves: number) {
         this.octaves = octaves;
@@ -63,9 +64,9 @@ export class Piano {
 
     public midiEvent(e: MIDIMessageEvent) {
         if (e.data[0] === MidiNoteOn) {
-            this.pressedNotes.push(e.data[1]);
+            this.press(e.data[1]);
         } else if (e.data[0] === MidiNoteOff) {
-            this.pressedNotes.splice(this.pressedNotes.indexOf(e.data[1]), 1);
+            this.release(e.data[1]);
         }
     }
 
@@ -75,5 +76,29 @@ export class Piano {
 
     public getMidiAtIndex(index: number) {
         return this.leftMostKeyMidi + index;
+    }
+
+    public press(midi: number) {
+        if (!this.isNoteDown(midi)) {
+            this.pressedNotes.push(midi);
+            this.onNoteListeners.forEach(listener => listener(midi, false));
+        }
+    }
+
+    public release(midi: number) {
+        if (this.isNoteDown(midi)) {
+            this.pressedNotes.splice(this.pressedNotes.indexOf(midi), 1);
+            this.onNoteListeners.forEach(listener => listener(midi, true));
+        }
+    }
+
+    public reset() {
+        while (this.pressedNotes.length !== 0) {
+            this.release(this.pressedNotes[0]);
+        }
+    }
+
+    public addOnNoteListener(listener: (midi: number, release: boolean) => void) {
+        this.onNoteListeners.push(listener);
     }
 }
