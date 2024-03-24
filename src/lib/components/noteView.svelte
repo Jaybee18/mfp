@@ -291,7 +291,7 @@
         </div>
         <div>
             <Text bind:content={playbackTimeText} />
-            <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
+            <!-- <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/> -->
             <IconButton tooltip="reset" onClick={resetToStart} style="margin-right: 5px;">
                 <Fa icon={faRotateLeft} style="margin-right: -2px;"/>
             </IconButton>
@@ -352,8 +352,8 @@
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            width: 50%;
-            margin-left: 25%;
+            width: 60%;
+            margin-left: 20%;
 
             border: 1px solid #d5d5d50c;
             outline: 1px $text-color;
