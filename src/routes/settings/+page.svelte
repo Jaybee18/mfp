@@ -14,6 +14,7 @@
         $defaultConfig.playNotesOnKeyboard = v;
         visualizeNotesOnKeyboardText = v ? "enabled" : "disabled";
     };
+
 </script>
 <div id="main">
     <div id="settings-item">
@@ -23,6 +24,10 @@
     <div id="settings-item">
         <p>Visualize playing notes on keyboard</p>
         <ToggleButton bind:text={visualizeNotesOnKeyboardText} onClick={visualizeNotesOnKeyboard} active={$defaultConfig.playNotesOnKeyboard}/>
+    </div>
+    <div id="settings-item">
+        <p>Stop until note is played</p>
+        <p>TODO</p>
     </div>
 </div>
 

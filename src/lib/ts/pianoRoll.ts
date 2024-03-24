@@ -1,8 +1,9 @@
 import { canvasScaleFactor, canvasText, noteHit, secondsPerViewport } from "./constants/constants";
 import { highlightDark } from "./constants/constants";
 import { highlight, pianoRollFps, sharpKeyWidthFactor } from "./constants/constants";
-import type { Note } from "./notes";
+import type { Note } from "./util/notes";
 import type { Piano } from "./piano";
+import defaultConfig from "./Config";
 
 export class PianoRoll {
     public width: number = 0;
@@ -35,6 +36,11 @@ export class PianoRoll {
             this.setCanvas(canvas);
 
         this.calculateKeyWidths();
+
+        // subscribe to relevant config changes
+        defaultConfig.subscribe((value) => {
+            this.playNotes = value.playNotesSounds;
+        });
     }
 
     private calculateKeyWidths() {
@@ -45,14 +51,6 @@ export class PianoRoll {
     public setCanvas(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         const { width, height } = canvas.getBoundingClientRect();
-        // const dpi = window.devicePixelRatio;
-        // const style_width = getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
-        // const style_height = getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
-        // const scaleFactor = 10;
-        // canvas.setAttribute("width", (Number(style_width) * dpi * scaleFactor).toString());
-        // canvas.setAttribute("height", (Number(style_height) * dpi * scaleFactor).toString());
-        // canvas.width = width * scaleFactor;
-        // canvas.height = height * scaleFactor;
         this.width = width;
         this.height = height;
 
@@ -152,7 +150,7 @@ export class PianoRoll {
             for (let i = 0; i < (this.height / tickHeight) / this.ticksPerBeat + 1; i++) {
                 ctx.moveTo(0, this.height + (this.time % this.ticksPerBeat) * tickHeight - i * this.ticksPerBeat * tickHeight);
                 ctx.lineTo(this.width, this.height + (this.time % this.ticksPerBeat) * tickHeight - i * this.ticksPerBeat * tickHeight);
-                ctx.strokeText(String(i), 10, this.height + (this.time % this.ticksPerBeat) * tickHeight - i * this.ticksPerBeat * tickHeight + 35);
+                ctx.strokeText(String(Math.floor(this.time / this.ticksPerBeat) + i), 10, this.height + (this.time % this.ticksPerBeat) * tickHeight - i * this.ticksPerBeat * tickHeight + 35);
             }
             ctx.closePath();
             ctx.stroke();
@@ -236,10 +234,6 @@ export class PianoRoll {
         this.width = newWidth;
         this.height = newHeight;
         this.calculateKeyWidths();
-
-        console.log("width: ", this.width);
-        console.log("height: ", this.height);
-        console.log("tick height: ", this.height / this.viewportTicks);
     }
 
     public setBpm(bpm: number) {
@@ -267,6 +261,17 @@ export class PianoRoll {
     }
 
     public tick() {
+        if (true) {
+            let allNecessaryNotesDown = true;
+            for (const note of this.notes) {
+                if (this.time - this.deltaTicks <= note.startTime && this.time > note.startTime) {
+                    if (!this.piano.isNoteDown(note.midiNumber)) {
+                        allNecessaryNotesDown = false;
+                    }
+                }
+            }
+            if (!allNecessaryNotesDown) return;
+        }
         this.time += this.deltaTicks;
     }
 

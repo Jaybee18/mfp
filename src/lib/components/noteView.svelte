@@ -2,17 +2,21 @@
 	import { onMount } from "svelte";
     import JZZ from 'jzz';
 
-	import { readMidiFile, type MidiFileParseResult } from "$lib/ts/notes";
+	import { readMidiFile, type MidiFileParseResult } from "$lib/ts/util/notes";
 	import { Piano } from "$lib/ts/piano";
 	import { PianoRoll } from "$lib/ts/pianoRoll";
 	import { PianoKeys } from "$lib/ts/pianoKeys";
     import { PianoSynth } from "$lib/ts/audio/pianoSynth";
-	import { canvasScaleFactor } from "$lib/ts/constants/constants";
+	import { MidiNoteOff, MidiNoteOn, canvasScaleFactor } from "$lib/ts/constants/constants";
 	import ValueSlider from "$lib/components/ValueSlider.svelte";
 	import Button from "$lib/components/Button.svelte";
     import * as Tone from 'tone';
 	import Text from "./Text.svelte";
 	import ToggleButton from "./ToggleButton.svelte";
+	import IconButton from "./IconButton.svelte";
+	import Fa from "svelte-fa";
+	import { faLightbulb, faLink, faMusic, faVolumeHigh, faVolumeMute, faArrowUpFromBracket, faPlay, faPause, faEye, faEyeSlash, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
+	import defaultConfig from "$lib/ts/Config";
 
     let title: HTMLElement | null;
 
@@ -36,7 +40,7 @@
         }
     });
 
-    let audioContext;
+    let audioContext: AudioContext | null = null;
     let midiFile: MidiFileParseResult | null = null;
 
     const updatePianoKeys = () => {
@@ -44,12 +48,14 @@
     }
     
     const onMidiIn = (e: MIDIMessageEvent) => {
-        piano.midiEvent(e);
-        pianoSynth.midiEvent(e);
-        
-        // show pressed keys even when no midi is playing
-        updatePianoKeys();
-        play();
+        if (e.data[0] === MidiNoteOn || e.data[0] === MidiNoteOff) {
+            piano.midiEvent(e);
+            pianoSynth.midiEvent(e);
+            
+            // show pressed keys even when no midi is playing
+            updatePianoKeys();
+            play();
+        }
     }
 
     const play = () => {   
@@ -124,14 +130,33 @@
     };
 
     const setupAudio = (e: MouseEvent) => {
-        try {
-            _setupAudio().then().catch((e) => {
-                console.log(e);
-            });
-        } catch (e: any) {
-            console.log(e)
+        if (audioContext === null) {
+            try {
+                _setupAudio().then().catch((err) => {
+                    console.log(err);
+                });
+            } catch (err: any) {
+                console.log(err)
+            } 
         }
     };
+
+    // key resize logic
+    let pianoResizing = false;
+    let resizeMouseDownY = 0;
+    let resizeMouseDownHeight = 0;
+    const resize = (e: MouseEvent) => {
+        if (pianoResizing)
+            pianoKeysCanvas.style.height = (resizeMouseDownHeight + (resizeMouseDownY - e.y)).toString() + "px";
+    }
+    const resizeMouseDown = (e: MouseEvent) => {
+        pianoResizing = true;
+        resizeMouseDownY = e.y;
+        resizeMouseDownHeight = pianoKeysCanvas.clientHeight;
+    }
+    const resizeMouseUp = (e: MouseEvent) => {
+        pianoResizing = false;
+    }
 
     onMount(async () => {
         title = document.getElementById("header-center");
@@ -191,6 +216,10 @@
                 midiDropZone.style.display = "none";
             }
         }
+
+        // key resize listeners
+        window.addEventListener("mousemove", resize);
+        window.addEventListener("mouseup", resizeMouseUp);
     });
     
     const uploadMidi = (e: MouseEvent) => {
@@ -223,6 +252,8 @@
         pianoRoll.reset();
         pianoKeys.draw();
         playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s";
+
+        stop();
     }
 
     const togglePlayingPianoNotes = () => {
@@ -233,7 +264,47 @@
     };
 </script>
 
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="notes-wrapper">
+    <div id="toolbar">
+        <div>
+            <IconButton tooltip="connect midi" onClick={connectMidi}>
+                <Fa icon={faLink} />
+            </IconButton>
+            <IconButton tooltip="upload midi" onClick={uploadMidi}>
+                <Fa icon={faArrowUpFromBracket} style="margin-left: -0.5px;" />
+            </IconButton>
+            <IconButton bind:active={$defaultConfig.playNotesOnKeyboard} tooltip="visualize notes">
+                {#if $defaultConfig.playNotesOnKeyboard}
+                    <Fa icon={faEye} scale={1.1} style="margin-left: -1px;"/>
+                {:else}
+                    <Fa icon={faEyeSlash} scale={1.1} style="margin-left: -1px;"/>
+                {/if}
+            </IconButton>
+            <IconButton bind:active={$defaultConfig.playNotesSounds} tooltip="play notes" onClick={setupAudio}>
+                {#if $defaultConfig.playNotesSounds}
+                    <Fa icon={faVolumeHigh} scale={1.1} style="margin-left: -2px;"/>
+                {:else}
+                    <Fa icon={faVolumeMute} scale={1.1} style="margin-left: -2px;"/>
+                {/if}
+            </IconButton>
+        </div>
+        <div>
+            <Text bind:content={playbackTimeText} />
+            <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
+            <IconButton tooltip="reset" onClick={resetToStart} style="margin-right: 5px;">
+                <Fa icon={faRotateLeft} style="margin-right: -2px;"/>
+            </IconButton>
+            <!-- <IconButton bind:active={isPlaying} tooltip={isPlaying ? "pause" : "play"} onClick={togglePlay}>
+                {#if isPlaying}
+                    <Fa icon={faPause} style="margin-right: -1px;"/>
+                {:else}
+                    <Fa icon={faPlay} style="margin-right: -1px;"/>
+                {/if}
+            </IconButton> -->
+            <Button onClick={togglePlay} bind:text={playButtonText} />
+        </div>
+    </div>
     <div class="notes">
         <div bind:this={midiDropZone} class="drop-zone" on:drop={onDrop} on:dragover={onDragOver} aria-hidden="true">
             <div>
@@ -241,20 +312,26 @@
             </div>
         </div>
         <div class="note-shadow"></div>
-        <div id="dev-tools">
+        <div id="dev-tools" style="display: none;">
             <Button text="setup audio" onClick={setupAudio}/>
-            <Button text="connect midi" onClick={connectMidi}/>
-            <Button text="upload midi" onClick={uploadMidi}/>
+            <IconButton tooltip="connect midi" onClick={connectMidi}>
+                <Fa icon={faLink} />
+            </IconButton>
+            <IconButton tooltip="upload midi" onClick={uploadMidi}>
+                <Fa icon={faArrowUpFromBracket} />
+            </IconButton>
             <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
             <Button onClick={togglePlay} bind:text={playButtonText} />
             <Button text="reset" onClick={resetToStart} />
             <ToggleButton text="play notes" bind:active={playPianoNotes} onClick={togglePlayingPianoNotes}/>
+
             <Text bind:content={playbackTimeText} />
             <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
             <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
         </div>
         <canvas bind:this={pianoRollCanvas} id="notes"></canvas>
     </div>
+    <div id="resize-handle" on:mousedown={resizeMouseDown}></div>
     <canvas bind:this={pianoKeysCanvas} id="piano"></canvas>
 </div>
 
@@ -266,8 +343,33 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        padding: 50px 0;
+        //padding: 25px 0;
+        padding: 0 0 25px 0;
         box-sizing: border-box;
+
+        #toolbar {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 50%;
+            margin-left: 25%;
+
+            border: 1px solid #d5d5d50c;
+            outline: 1px $text-color;
+            box-sizing: border-box;
+            border-radius: 10px;
+            padding: 6px;
+            z-index: 3;
+            box-shadow: 1px 3px 2px 0px #0000003b;
+            backdrop-filter: brightness(90%);
+
+            div {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+            }
+        }
 
         .notes {
             max-width: 100%;
@@ -292,7 +394,9 @@
             }
             
             .note-shadow {
-                background: linear-gradient(0deg, rgba(0,0,0,0) 0%, $background 100%);
+                // 90% gives the illusion of a padding to the control ribbon and
+                // makes the note view look less dense
+                background: linear-gradient(0deg, rgba(0,0,0,0) 0%, $background 90%);
                 width: 100%;
                 height: 10%;
                 position: absolute;
@@ -333,5 +437,13 @@
             border: 1px solid $text-color;
             box-sizing: border-box;
         }
+    }
+
+    #resize-handle {
+        z-index: 2;
+        height: 10px;
+        margin: -5px 0;
+        cursor: ns-resize;
+        user-select: none;
     }
 </style>

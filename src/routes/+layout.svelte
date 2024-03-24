@@ -8,13 +8,13 @@
             <h1>
                 <a href="/">mfp</a>
             </h1>
-            <div id="header-center">
+            <!-- <div id="header-center">
                 Title
-            </div>
+            </div> -->
             <div id="routes">
+                <a href="/">home</a>
                 <a href="/about">about</a>
                 <a href="/settings">settings</a>
-                <a href="/account">account</a>
             </div>
         </div>
     </header>

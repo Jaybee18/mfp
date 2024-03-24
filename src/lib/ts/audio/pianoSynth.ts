@@ -1,5 +1,5 @@
 import type { Piano } from '../piano';
-import { midiNumberToNote } from '../notes';
+import { midiNumberToNote } from '../util/notes';
 import { MidiNoteOff, MidiNoteOn } from '../constants/constants';
 import { type PolySynth } from 'tone';
 

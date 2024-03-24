@@ -14,11 +14,14 @@ A piano learning webapp for midi devices
 
 
 ### v0.3
+- [ ] label keys / notes - option
+- [ ] stop when note isn't hit; resume when hit - option
+
+
+## backlog
 - [ ] map midi buttons to play/stop/restart
 - [ ] metronome
 - [ ] use pitch wheel to scroll notes up/down
-
-## backlog
 - [ ] key holding particle effects
 - [ ] customization
 - [ ] community midi collection
@@ -28,8 +31,6 @@ A piano learning webapp for midi devices
 - [ ] switch between midi controller and keyboard
 - [ ] make piano keys manually clickable
 - [ ] snap midi notes to ticks (12 ticks? 6 ticks?) - option
-- [ ] stop when note isn't hit; resume when hit - option
-- [ ] label keys / notes - option
 - [ ] zeit anzeige switch in
     sekunden
     beats

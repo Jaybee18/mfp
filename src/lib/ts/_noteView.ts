@@ -1,6 +1,6 @@
 import JZZ from 'jzz';
 import { Accidental, Dot, Formatter, Modifier, RenderContext, Renderer, Stave, StaveModifier, StaveNote, Voice } from 'vexflow';
-import { MidiParser, MIDI, type MIDIEventData, MIDIEventType } from './midiParser';
+import { MidiParser, MIDI, type MIDIEventData, MIDIEventType } from './util/midiParser';
 import { Vex } from 'vexflow';
 
 const midiParser = new MidiParser();

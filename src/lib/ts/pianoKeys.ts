@@ -1,6 +1,5 @@
-import { Color } from "./Color";
 import { highlight, highlightDark, pianoKeyOutlineWidth, sharpKeyHeightFactor, sharpKeyWidthFactor } from "./constants/constants";
-import { midiNumberToNote } from "./notes";
+import { midiNumberToNote } from "./util/notes";
 import type { Piano } from "./piano";
 
 export class PianoKeys {
