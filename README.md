@@ -14,9 +14,9 @@ A piano learning webapp for midi devices
 
 
 ### v0.3
-- [ ] label keys / notes - option
-- [ ] stop when note isn't hit; resume when hit - option
-![image](https://github.com/Jaybee18/mfp/assets/64578396/0adc5098-e0c4-4339-aa21-971dfa795896)
+- [x] label keys / notes - option
+- [x] stop when note isn't hit; resume when hit - option
+![image](https://github.com/Jaybee18/mfp/assets/64578396/89d9cae8-c257-4ab9-b605-e13b5d2a31ce)
 
 
 ## backlog
