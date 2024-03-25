@@ -1,8 +1,9 @@
 <script lang="ts">
     export let content: string = "";
+    export let style: string = "";
 </script>
 
-<div>
+<div style={style}>
     {content}
 </div>
 

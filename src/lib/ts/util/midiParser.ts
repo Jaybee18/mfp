@@ -54,6 +54,9 @@ export enum MIDIEventType {
     ProgramChange = 12,  // 2nd parameter: -
     ChannelAftertouch = 13,  // 2nd parameter: -
     PitchBend = 14, // 2nd parameter: pitch value
+
+    // Meta events
+    SetTempo = 0x51,
 }
 
 class midiFile {
@@ -120,8 +123,9 @@ export class MIDI {
     public data: unknown | null = null;
     public formatType: number = 0;
     public tracks: number = 0;
-    public track: Array<any> = [];
+    public track: Array<{event: MIDIEventData[]}> = [];
     public timeDivision: Array<any> | number = [];
+    public bpm: number = 120;
 
     constructor() {}
 }
@@ -241,7 +245,12 @@ export class MidiParser {
             let laststatusByte;
             while(!endOfTrack){
                 e++;                                                            // increase by 1 event counter
-                midi.track[t-1].event[e-1] = {};                                // create new event object, in events array
+                midi.track[t-1].event[e-1] = {
+                    data: [],
+                    deltaTime: 0,
+                    metaType: 0,
+                    type: 0,
+                };                                // create new event object, in events array
                 midi.track[t-1].event[e-1].deltaTime  = file.readIntVLV();      // get DELTA TIME OF MIDI event (Variable Length Value)
                 statusByte = file.readInt(1);                                   // read EVENT TYPE (STATUS BYTE)
                 if(statusByte === -1) break;                                    // EOF
@@ -368,6 +377,19 @@ export class MidiParser {
                 }
             }
         }
+
+        for(let i = 0; i < midi.track.length; i++) {
+            for (let j = 0; j < midi.track[i].event.length; j++) {
+                const event = midi.track[i].event[j];
+                if (event.metaType === MIDIEventType.SetTempo) {
+                    if (typeof event.data === "number") {
+                        console.log(event.data)
+                        midi.bpm = (1 / (event.data / 1000000)) * 60;
+                    }
+                }
+            }
+        }
+
         return midi;
     }
 

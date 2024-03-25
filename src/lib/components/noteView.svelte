@@ -2,38 +2,24 @@
 	import { onMount } from "svelte";
     import JZZ from 'jzz';
 
-	import { readMidiFile, type MidiFileParseResult } from "$lib/ts/util/notes";
-	import { Piano } from "$lib/ts/piano";
-	import { PianoRoll } from "$lib/ts/pianoRoll";
-	import { PianoKeys } from "$lib/ts/pianoKeys";
-    import { PianoSynth } from "$lib/ts/audio/pianoSynth";
 	import { MidiNoteOff, MidiNoteOn, canvasScaleFactor } from "$lib/ts/constants/constants";
-	import ValueSlider from "$lib/components/ValueSlider.svelte";
 	import Button from "$lib/components/Button.svelte";
     import * as Tone from 'tone';
 	import Text from "./Text.svelte";
-	import ToggleButton from "./ToggleButton.svelte";
 	import IconButton from "./IconButton.svelte";
 	import Fa from "svelte-fa";
-	import { faLightbulb, faLink, faMusic, faVolumeHigh, faVolumeMute, faArrowUpFromBracket, faPlay, faPause, faEye, faEyeSlash, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
+	import { faLink, faVolumeHigh, faVolumeMute, faArrowUpFromBracket, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
 	import defaultConfig from "$lib/ts/Config";
-
-    let title: HTMLElement | null;
+	import { Midi } from "$lib/ts/util/Midi";
+	import { piano, pianoKeys, pianoRoll, pianoSynth } from "$lib/ts/util/globals";
 
     let playButtonText: string = "play";
-    let playbackTimeText: string = "0";
-    let playPianoNotes: boolean = true;
+    let playbackTimeText: string = "";
     let pianoRollCanvas: HTMLCanvasElement;
     let pianoKeysCanvas: HTMLCanvasElement;
     let midiFileInput: HTMLInputElement;
     let midiDropZone: HTMLElement;
 
-    let piano = new Piano(5);
-    let pianoRoll = new PianoRoll(piano);
-    let pianoKeys = new PianoKeys(piano);
-    let pianoSynth = new PianoSynth(piano);
-
-    pianoRoll.playNotes = playPianoNotes;
     piano.addOnNoteListener((midi, release) => {
         if (!release) {
             pianoSynth.playNote(midi);
@@ -41,7 +27,7 @@
     });
 
     let audioContext: AudioContext | null = null;
-    let midiFile: MidiFileParseResult | null = null;
+    let midi: Midi | null = null;
 
     const updatePianoKeys = () => {
         pianoKeys.draw();
@@ -61,7 +47,8 @@
     const play = () => {   
         if (!pianoRoll.isPlaying() && pianoRoll.hasNotes()) {
             pianoRoll.play(() => {
-                playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s / " + String((pianoRoll.toTimeMs(midiFile?.length)/1000).toFixed(2)) + "s";
+                if (midi !== null)
+                    playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s / " + String((pianoRoll.toTimeMs(midi.trackLength)/1000).toFixed(2)) + "s";
                 updatePianoKeys();
             });
 
@@ -94,22 +81,16 @@
     };
 
 
-    const onDrop = (e: DragEvent) => {
+    const onDrop = async (e: DragEvent) => {
         e.preventDefault();
         const file = e.dataTransfer?.files[0];
         if (file !== undefined) {
-            readMidiFile(file, (parsed, res) => {
-                midiFile = res;
-
-                pianoRoll.setNotes(parsed);
-                pianoRoll.setBpm(res.bpm);
-                pianoRoll.setTicksPerBeat(res.ticksPerBeat);
-                pianoRoll.draw();
-
-                if (title !== null) {
-                    title.innerText = file.name;
-                }
-            });
+            midi = new Midi();
+            await midi.read(file);
+            pianoRoll.setNotes(midi.getTrack(0));
+            pianoRoll.setBpm(midi.bpm);
+            pianoRoll.setTicksPerBeat(midi.ticksPerBeat);
+            pianoRoll.draw();
         }
     };
 
@@ -159,19 +140,19 @@
     }
 
     onMount(async () => {
-        title = document.getElementById("header-center");
-
         updateCanvasSize(pianoRollCanvas);
         updateCanvasSize(pianoKeysCanvas);
-
-        const observer = new ResizeObserver((entries) => {
-            updateCanvasSize(pianoRollCanvas);
-            updateCanvasSize(pianoKeysCanvas);
-
-            pianoRoll.resize(pianoRollCanvas.width, pianoRollCanvas.height);
-            pianoRoll.draw();
-            pianoKeys.resize(pianoKeysCanvas.width, pianoKeysCanvas.height);
-            pianoKeys.draw();
+        
+        const observer = new ResizeObserver(() => {
+            if (pianoRollCanvas !== null && pianoKeysCanvas !== null) {
+                updateCanvasSize(pianoRollCanvas);
+                updateCanvasSize(pianoKeysCanvas);
+                
+                pianoRoll.resize(pianoRollCanvas.width, pianoRollCanvas.height);
+                pianoRoll.draw();
+                pianoKeys.resize(pianoKeysCanvas.width, pianoKeysCanvas.height);
+                pianoKeys.draw();
+            }
         });
         observer.observe(pianoRollCanvas);
         observer.observe(pianoKeysCanvas);
@@ -181,24 +162,18 @@
         
         pianoRoll.setCanvas(pianoRollCanvas);
 
-        midiFileInput.onchange = (e: Event) => {
+        midiFileInput.onchange = async (e: Event) => {
             if (e.target === null) return;
             const files = (e.target as HTMLInputElement).files;
             if (files === null) return;
             const file = files[0];
-            readMidiFile(file, (parsed, res) => {
-                midiFile = res;
 
-                pianoRoll.setNotes(parsed);
-                pianoRoll.setBpm(res.bpm);
-                pianoRoll.setTicksPerBeat(res.ticksPerBeat);
-                pianoRoll.draw();
-            
-                console.log(JSON.stringify(res, null, 2));
-                if (title !== null) {
-                    title.innerText = file.name;
-                }
-            });
+            midi = new Midi();
+            await midi.read(file);
+            pianoRoll.setNotes(midi.getTrack(0));
+            pianoRoll.setBpm(midi.bpm);
+            pianoRoll.setTicksPerBeat(midi.ticksPerBeat);
+            pianoRoll.draw();
         };
 
         // show/hide the midi drop hint
@@ -251,7 +226,8 @@
         piano.reset();
         pianoRoll.reset();
         pianoKeys.draw();
-        playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s";
+        if (midi !== null)
+            playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s / " + String((pianoRoll.toTimeMs(midi.trackLength)/1000).toFixed(2)) + "s";;
 
         stop();
     }
@@ -276,10 +252,10 @@
             </IconButton>
         </div>
         <div>
-            <Text bind:content={playbackTimeText} />
+            <Text bind:content={playbackTimeText} style="margin-right: 5px;"/>
             <!-- <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/> -->
             <IconButton tooltip="reset" onClick={resetToStart} style="margin-right: 5px;">
-                <Fa icon={faRotateLeft} style="margin-right: -2px;"/>
+                <Fa icon={faRotateLeft}/>
             </IconButton>
             <!-- <IconButton bind:active={isPlaying} tooltip={isPlaying ? "pause" : "play"} onClick={togglePlay}>
                 {#if isPlaying}
@@ -329,7 +305,6 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        //padding: 25px 0;
         padding: 0 0 25px 0;
         box-sizing: border-box;
 
@@ -402,9 +377,6 @@
                 box-sizing: border-box;
 
                 justify-content: center;
-
-                // background-color: black;
-                // outline: 1px solid white;
             }
 
             #notes {
