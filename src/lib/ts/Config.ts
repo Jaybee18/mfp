@@ -1,12 +1,12 @@
-import { type Writable, writable } from "svelte/store";
+import { type Writable, writable, type Subscriber } from "svelte/store";
 
-type Config = {
+export type Config = {
     speedFactor: number,
     drawNoteLabels: boolean,
     drawBeatLabels: boolean,
     drawBeatLines: boolean,
-    playNotesSounds: boolean,
-    playNotesOnKeyboard: boolean,
+    playNotes: boolean,
+    stopUntilNotePress: boolean,
 }
 
 let defaultConfig: Writable<Config> = writable({
@@ -14,10 +14,12 @@ let defaultConfig: Writable<Config> = writable({
     drawNoteLabels: false,
     drawBeatLabels: false,
     drawBeatLines: true,
-    playNotesSounds: false,
-    playNotesOnKeyboard: true
+    playNotes: false,
+    stopUntilNotePress: false,
 });
-defaultConfig.subscribe((v) => {
-    console.log("config value changed!", v);
-})
+
+export function subscribeToConfig(func: Subscriber<Config>) {
+    defaultConfig.subscribe(func);
+};
+
 export default defaultConfig;

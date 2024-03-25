@@ -255,16 +255,8 @@
 
         stop();
     }
-
-    const togglePlayingPianoNotes = () => {
-        pianoRoll.playNotes = playPianoNotes;
-        if (!playPianoNotes) {
-            piano.reset();
-        }
-    };
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="notes-wrapper">
     <div id="toolbar">
         <div>
@@ -273,19 +265,13 @@
             </IconButton>
             <IconButton tooltip="upload midi" onClick={uploadMidi}>
                 <Fa icon={faArrowUpFromBracket} style="margin-left: -0.5px;" />
+                <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
             </IconButton>
-            <IconButton bind:active={$defaultConfig.playNotesOnKeyboard} tooltip="visualize notes">
-                {#if $defaultConfig.playNotesOnKeyboard}
-                    <Fa icon={faEye} scale={1.1} style="margin-left: -1px;"/>
-                {:else}
-                    <Fa icon={faEyeSlash} scale={1.1} style="margin-left: -1px;"/>
-                {/if}
-            </IconButton>
-            <IconButton bind:active={$defaultConfig.playNotesSounds} tooltip="play notes" onClick={setupAudio}>
-                {#if $defaultConfig.playNotesSounds}
+            <IconButton bind:active={$defaultConfig.playNotes} tooltip="play notes" onClick={setupAudio}>
+                {#if $defaultConfig.playNotes}
                     <Fa icon={faVolumeHigh} scale={1.1} style="margin-left: -2px;"/>
                 {:else}
-                    <Fa icon={faVolumeMute} scale={1.1} style="margin-left: -2px;"/>
+                    <Fa icon={faVolumeMute} scale={1.1} style="margin-left: -2px; filter: brightness(0.5);"/>
                 {/if}
             </IconButton>
         </div>
@@ -312,7 +298,7 @@
             </div>
         </div>
         <div class="note-shadow"></div>
-        <div id="dev-tools" style="display: none;">
+        <!-- <div id="dev-tools" style="display: none;">
             <Button text="setup audio" onClick={setupAudio}/>
             <IconButton tooltip="connect midi" onClick={connectMidi}>
                 <Fa icon={faLink} />
@@ -320,7 +306,6 @@
             <IconButton tooltip="upload midi" onClick={uploadMidi}>
                 <Fa icon={faArrowUpFromBracket} />
             </IconButton>
-            <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
             <Button onClick={togglePlay} bind:text={playButtonText} />
             <Button text="reset" onClick={resetToStart} />
             <ToggleButton text="play notes" bind:active={playPianoNotes} onClick={togglePlayingPianoNotes}/>
@@ -328,9 +313,10 @@
             <Text bind:content={playbackTimeText} />
             <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
             <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
-        </div>
+        </div> -->
         <canvas bind:this={pianoRollCanvas} id="notes"></canvas>
     </div>
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div id="resize-handle" on:mousedown={resizeMouseDown}></div>
     <canvas bind:this={pianoKeysCanvas} id="piano"></canvas>
 </div>
@@ -362,7 +348,7 @@
             padding: 6px;
             z-index: 3;
             box-shadow: 1px 3px 2px 0px #0000003b;
-            backdrop-filter: brightness(90%);
+            backdrop-filter: brightness(95%);
 
             div {
                 display: flex;

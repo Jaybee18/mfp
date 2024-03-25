@@ -3,31 +3,37 @@
 	import ToggleButton from "$lib/components/ToggleButton.svelte";
 	import defaultConfig from "$lib/ts/Config";
 
-    let playMidiNoteSoundsText = $defaultConfig.playNotesSounds ? "enabled" : "disabled";
+    let playMidiNoteText = $defaultConfig.playNotes ? "enabled" : "disabled";
     const playMidiNoteSounds = (e: MouseEvent, v: boolean) => {
-        $defaultConfig.playNotesSounds = v;
-        playMidiNoteSoundsText = v ? "enabled" : "disabled";
+        $defaultConfig.playNotes = v;
+        playMidiNoteText = v ? "enabled" : "disabled";
     };
 
-    let visualizeNotesOnKeyboardText = $defaultConfig.playNotesOnKeyboard ? "enabled" : "disabled";
-    const visualizeNotesOnKeyboard = (e: MouseEvent, v: boolean) => {
-        $defaultConfig.playNotesOnKeyboard = v;
-        visualizeNotesOnKeyboardText = v ? "enabled" : "disabled";
+    let stopUntilNotePlayText = $defaultConfig.stopUntilNotePress ? "enabled" : "disabled";
+    const stopUntilNotePlay = (e: MouseEvent, v: boolean) => {
+        $defaultConfig.stopUntilNotePress = v;
+        stopUntilNotePlayText = v ? "enabled" : "disabled";
+    };
+
+    let noteLabelsText = $defaultConfig.drawNoteLabels ? "enabled" : "disabled";
+    const noteLabels = (e: MouseEvent, v: boolean) => {
+        $defaultConfig.drawNoteLabels = v;
+        noteLabelsText = v ? "enabled" : "disabled";
     };
 
 </script>
 <div id="main">
     <div id="settings-item">
-        <p>Play midi note sounds</p>
-        <ToggleButton bind:text={playMidiNoteSoundsText} onClick={playMidiNoteSounds} active={$defaultConfig.playNotesSounds}/>
+        <p>Automatically let the virtual piano play the midi notes</p>
+        <ToggleButton bind:text={playMidiNoteText} onClick={playMidiNoteSounds} active={$defaultConfig.playNotes}/>
     </div>
     <div id="settings-item">
-        <p>Visualize playing notes on keyboard</p>
-        <ToggleButton bind:text={visualizeNotesOnKeyboardText} onClick={visualizeNotesOnKeyboard} active={$defaultConfig.playNotesOnKeyboard}/>
+        <p>Wait until notes are played</p>
+        <ToggleButton bind:text={stopUntilNotePlayText} onClick={stopUntilNotePlay} active={$defaultConfig.stopUntilNotePress}/>
     </div>
     <div id="settings-item">
-        <p>Stop until note is played</p>
-        <p>TODO</p>
+        <p>Note labels on piano keys</p>
+        <ToggleButton bind:text={noteLabelsText} onClick={noteLabels} active={$defaultConfig.drawNoteLabels}/>
     </div>
 </div>
 

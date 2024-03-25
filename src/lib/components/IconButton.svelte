@@ -36,7 +36,7 @@
         border: none;
         background-color: transparent;
 
-        transition: color 0.1s, background-color 0.2s;
+        transition: all 0.15s;
 
         &:hover {
             background-color: transparentize($color: #ffffff, $amount: 0.8);

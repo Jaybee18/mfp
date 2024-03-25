@@ -3,7 +3,7 @@ import { highlightDark } from "./constants/constants";
 import { highlight, pianoRollFps, sharpKeyWidthFactor } from "./constants/constants";
 import type { Note } from "./util/notes";
 import type { Piano } from "./piano";
-import defaultConfig from "./Config";
+import defaultConfig, { subscribeToConfig, type Config } from "./Config";
 
 export class PianoRoll {
     public width: number = 0;
@@ -13,7 +13,8 @@ export class PianoRoll {
     public ticksPerBeat: number = 1;
     public viewportTicks: number = 96 * 50;
     public speedFactor: number = 1;
-    public playNotes: boolean = false;
+
+    private config: Config | null = null;
 
     private deltaTicks: number = 1;
 
@@ -37,9 +38,8 @@ export class PianoRoll {
 
         this.calculateKeyWidths();
 
-        // subscribe to relevant config changes
-        defaultConfig.subscribe((value) => {
-            this.playNotes = value.playNotesSounds;
+        subscribeToConfig((value) => {
+            this.config = value;
         });
     }
 
@@ -192,7 +192,7 @@ export class PianoRoll {
                 ctx.closePath();
             }
 
-            if (this.playNotes) {
+            if (this.config?.playNotes) {
                 // visualizing the keys
                 if (this.time > note.startTime && this.time < note.startTime + note.duration) {
                     highlightedNotes.push(note);
@@ -261,7 +261,7 @@ export class PianoRoll {
     }
 
     public tick() {
-        if (true) {
+        if (this.config?.stopUntilNotePress) {
             let allNecessaryNotesDown = true;
             for (const note of this.notes) {
                 if (this.time - this.deltaTicks <= note.startTime && this.time > note.startTime) {
