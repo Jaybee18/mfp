@@ -1,5 +1,15 @@
+<div align="center">
+    
 # mfp
-A piano learning webapp for midi devices
+![Version](https://img.shields.io/github/v/tag/Jaybee18/mfp)
+[![Generic badge](https://img.shields.io/badge/Framework-SvelteKit-red.svg)](https://shields.io/)
+[![License](https://img.shields.io/github/license/Jaybee18/mfp)](https://shields.io/)
+[![Issues](https://img.shields.io/github/issues/Jaybee18/mfp)](https://shields.io/)
+
+</div>
+
+A free piano learning web-app for midi devices.
+
 ## Roadmap
 ### v0.1
 - [x] decent ui
