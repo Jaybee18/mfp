@@ -6,11 +6,10 @@
     <h1>About me</h1>
     <br>
     <p>
-        I am a software engineering student from Germany.
-        
+        I am a software engineering student from Germany.<br><br>
         My passion for music manifests itself in this website and multiple <br>
-        other music related projects from my <ExternalLink text="GitHub" link="https://github.com/Jaybee18/"/>,<br>
-        as well as multiple VST3 audio plugins.<br>
+        other music related projects from my <a href="https://github.com/Jaybee18/">GitHub</a>, as well as multiple <br>
+        VST3 audio plugins that are not released yet.<br>
     </p>
 </div>
 
@@ -24,5 +23,11 @@
         text-align: center;
         color: $text-color;
         font-family: 'Courier New', Courier, monospace;
+    }
+
+    p {
+        a {
+            color: $text-color;
+        }
     }
 </style>

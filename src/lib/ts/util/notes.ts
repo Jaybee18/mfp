@@ -112,8 +112,13 @@ export function readMidiFile(file: File, onsuccess: (notes: Note[], res: MidiFil
         reader.readAsBinaryString(file);
 }
 
-export function midiNumberToNote(midi: number, _format?: (note: string, octave: number) => string) {
-    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+export function midiNumberToNote(midi: number, _format?: (note: string, octave: number) => string, useFlats = false) {
+    let notes;
+    if (!useFlats) {
+        notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    } else {
+        notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+    }
     const octaves = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
 
     const octave = Math.floor(midi / 12) - 1;

@@ -8,10 +8,10 @@
 	import Text from "./Text.svelte";
 	import IconButton from "./IconButton.svelte";
 	import Fa from "svelte-fa";
-	import { faLink, faVolumeHigh, faVolumeMute, faArrowUpFromBracket, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
+	import { faLink, faVolumeHigh, faVolumeMute, faArrowUpFromBracket, faRotateLeft, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
 	import defaultConfig from "$lib/ts/Config";
 	import { Midi } from "$lib/ts/util/Midi";
-	import { piano, pianoKeys, pianoRoll, pianoSynth } from "$lib/ts/util/globals";
+	import { piano, pianoKeys, pianoRoll, pianoSampler } from "$lib/ts/util/globals";
 
     let playButtonText: string = "play";
     let playbackTimeText: string = "";
@@ -20,9 +20,12 @@
     let midiFileInput: HTMLInputElement;
     let midiDropZone: HTMLElement;
 
+    let midiConnected: boolean = false;
+    let midiAccess: WebMidi.MIDIAccess | null = null;
+
     piano.addOnNoteListener((midi, release) => {
         if (!release) {
-            pianoSynth.playNote(midi);
+            pianoSampler.playNote(midi);
         }
     });
 
@@ -36,7 +39,7 @@
     const onMidiIn = (e: MIDIMessageEvent) => {
         if (e.data[0] === MidiNoteOn || e.data[0] === MidiNoteOff) {
             piano.midiEvent(e);
-            pianoSynth.midiEvent(e);
+            pianoSampler.midiEvent(e);
             
             // show pressed keys even when no midi is playing
             updatePianoKeys();
@@ -48,7 +51,7 @@
         if (!pianoRoll.isPlaying() && pianoRoll.hasNotes()) {
             pianoRoll.play(() => {
                 if (midi !== null)
-                    playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s / " + String((pianoRoll.toTimeMs(midi.trackLength)/1000).toFixed(2)) + "s";
+                    playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toFixed(1)) + "s / " + String((pianoRoll.toTimeMs(midi.trackLength)/1000).toFixed(1)) + "s";
                 updatePianoKeys();
             });
 
@@ -61,8 +64,10 @@
         playButtonText = "play";
     };
     
-    const startMidiListen = (midiAcess: WebMidi.MIDIAccess) => {
-        const inputs = midiAcess.inputs;
+    const startMidiListen = (access: WebMidi.MIDIAccess) => {
+        midiAccess = access;
+
+        const inputs = access.inputs;
 
         console.log(inputs.values());
         console.log(inputs.keys());
@@ -76,8 +81,18 @@
         console.log("midi access denied");
     }
 
-    const connectMidi = (e: MouseEvent) => {
-        JZZ.requestMIDIAccess().then(startMidiListen, midiAccessDenied);
+    const connectMidi = async (e: MouseEvent) => {
+        if (!midiConnected) {
+            midiAccess?.inputs.forEach(port => {
+                port.open();
+            });
+            midiConnected = true;
+        } else {
+            midiAccess?.inputs.forEach(port => {
+                port.close();
+            });
+            midiConnected = false;
+        }
     };
 
 
@@ -105,7 +120,7 @@
     
         Tone.start();
         const s = new Tone.PolySynth().toDestination();
-        pianoSynth.setSynth(s);
+        //pianoSynth.setSynth(s);
     
         console.log("audio setup successful");
     };
@@ -140,6 +155,8 @@
     }
 
     onMount(async () => {
+        JZZ.requestMIDIAccess().then(startMidiListen, midiAccessDenied);
+        
         updateCanvasSize(pianoRollCanvas);
         updateCanvasSize(pianoKeysCanvas);
         
@@ -236,12 +253,16 @@
 <div class="notes-wrapper">
     <div id="toolbar">
         <div>
-            <IconButton tooltip="connect midi" onClick={connectMidi}>
-                <Fa icon={faLink} />
-            </IconButton>
-            <IconButton tooltip="upload midi" onClick={uploadMidi}>
+            <IconButton tooltip="upload midi file" onClick={uploadMidi}>
                 <Fa icon={faArrowUpFromBracket} style="margin-left: -0.5px;" />
                 <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
+            </IconButton>
+            <IconButton tooltip={midiConnected ? "disconnect midi controller" : "connect midi controller"} onClick={connectMidi}>
+                {#if midiConnected}
+                    <Fa icon={faLink} />
+                {:else}
+                    <Fa icon={faLinkSlash} style="filter: brightness(0.5);"/>
+                {/if}
             </IconButton>
             <IconButton bind:active={$defaultConfig.playNotes} tooltip="play notes" onClick={setupAudio}>
                 {#if $defaultConfig.playNotes}
