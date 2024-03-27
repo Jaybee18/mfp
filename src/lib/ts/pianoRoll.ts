@@ -140,6 +140,8 @@ export class PianoRoll {
         const bps = this.bpm / 60;
         const tickHeight = this.height / ((secondsPerViewport * bps) * this.ticksPerBeat) / 2;
     
+        this.calculateKeyWidths();
+
         ctx.clearRect(0, 0, this.width, this.height);
 
         if (this.notes.length > 0) {

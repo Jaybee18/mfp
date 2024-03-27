@@ -7,6 +7,7 @@ export type Config = {
     drawBeatLines: boolean,
     playNotes: boolean,
     stopUntilNotePress: boolean,
+    numOctaves: number,
 }
 
 let defaultConfig: Writable<Config> = writable({
@@ -16,6 +17,7 @@ let defaultConfig: Writable<Config> = writable({
     drawBeatLines: true,
     playNotes: false,
     stopUntilNotePress: false,
+    numOctaves: 5,
 });
 
 export function subscribeToConfig(func: Subscriber<Config>) {

@@ -47,7 +47,7 @@ export class PianoKeys {
         this.canvas.width = width;
         this.canvas.height = height;
         
-        const numNaturalKeys = this.piano.octaves * 7 + 1;
+        const numNaturalKeys = this.piano.getOctaves() * 7 + 1;
         const naturalKeyWidth = width / numNaturalKeys;
         const sharpKeyWidth = naturalKeyWidth * sharpKeyWidthFactor;
     

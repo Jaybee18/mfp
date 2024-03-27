@@ -1,3 +1,4 @@
+import defaultConfig, { type Config, subscribeToConfig } from "./Config";
 import { MidiNoteOff, MidiNoteOn, middleCMidiNumber } from "./constants/constants";
 
 // get middle c index relative to octave number (including sharp keys)
@@ -21,8 +22,6 @@ function getMiddleCIndex(octaves: number) {
 }
 
 export class Piano {
-    public octaves: number;
-    
     private numKeys: number;
     private numNaturalKeys: number;
     private middleCIndex: number;
@@ -31,12 +30,16 @@ export class Piano {
     private pressedNotes: number[] = [];
     private onNoteListeners: ((midi: number, release: boolean) => void)[] = [];
 
-    constructor(octaves: number) {
-        this.octaves = octaves;
+    private config: Config | null = null;
 
-        this.numKeys = 12 * octaves + 1;
-        this.numNaturalKeys = 7 * octaves + 1;
-        this.middleCIndex = getMiddleCIndex(this.octaves);
+    constructor() {
+        subscribeToConfig((value) => {
+            this.config = value;
+        });
+
+        this.numKeys = 12 * this.config?.numOctaves + 1;
+        this.numNaturalKeys = 7 * this.config?.numOctaves + 1;
+        this.middleCIndex = getMiddleCIndex(this.config?.numOctaves);
         this.leftMostKeyMidi = middleCMidiNumber - this.middleCIndex;
     }
 
@@ -100,5 +103,9 @@ export class Piano {
 
     public addOnNoteListener(listener: (midi: number, release: boolean) => void) {
         this.onNoteListeners.push(listener);
+    }
+
+    public getOctaves() {
+        return this.config?.numOctaves;
     }
 }

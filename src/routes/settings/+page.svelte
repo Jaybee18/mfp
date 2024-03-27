@@ -1,39 +1,24 @@
 <script lang="ts">
-	import Button from "$lib/components/Button.svelte";
 	import ToggleButton from "$lib/components/ToggleButton.svelte";
+    import ValueSlider from '$lib/components/ValueSlider.svelte';
 	import defaultConfig from "$lib/ts/Config";
-
-    let playMidiNoteText = $defaultConfig.playNotes ? "enabled" : "disabled";
-    const playMidiNoteSounds = (e: MouseEvent, v: boolean) => {
-        $defaultConfig.playNotes = v;
-        playMidiNoteText = v ? "enabled" : "disabled";
-    };
-
-    let stopUntilNotePlayText = $defaultConfig.stopUntilNotePress ? "enabled" : "disabled";
-    const stopUntilNotePlay = (e: MouseEvent, v: boolean) => {
-        $defaultConfig.stopUntilNotePress = v;
-        stopUntilNotePlayText = v ? "enabled" : "disabled";
-    };
-
-    let noteLabelsText = $defaultConfig.drawNoteLabels ? "enabled" : "disabled";
-    const noteLabels = (e: MouseEvent, v: boolean) => {
-        $defaultConfig.drawNoteLabels = v;
-        noteLabelsText = v ? "enabled" : "disabled";
-    };
-
 </script>
 <div id="main">
     <div id="settings-item">
         <p>Automatically let the virtual piano play the midi notes</p>
-        <ToggleButton bind:text={playMidiNoteText} onClick={playMidiNoteSounds} active={$defaultConfig.playNotes}/>
+        <ToggleButton text={$defaultConfig.playNotes ? "enabled" : "disabled"} bind:active={$defaultConfig.playNotes}/>
+    </div>
+    <div id="settings-item">
+        <p>Number of octaves in virtual keyboard</p>
+        <ValueSlider text="octaves" bind:defaultValue={$defaultConfig.numOctaves} onChange={v => $defaultConfig.numOctaves = v}/>
     </div>
     <div id="settings-item">
         <p>Wait until notes are played</p>
-        <ToggleButton bind:text={stopUntilNotePlayText} onClick={stopUntilNotePlay} active={$defaultConfig.stopUntilNotePress}/>
+        <ToggleButton text={$defaultConfig.stopUntilNotePress ? "enabled" : "disabled"} bind:active={$defaultConfig.stopUntilNotePress}/>
     </div>
     <div id="settings-item">
         <p>Note labels on piano keys</p>
-        <ToggleButton bind:text={noteLabelsText} onClick={noteLabels} active={$defaultConfig.drawNoteLabels}/>
+        <ToggleButton text={$defaultConfig.drawNoteLabels ? "enabled" : "disabled"} bind:active={$defaultConfig.drawNoteLabels}/>
     </div>
 </div>
 
