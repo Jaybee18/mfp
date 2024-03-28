@@ -1,5 +1,5 @@
 <script lang="ts" type="module">
-	import { onMount } from "svelte";
+	import { onDestroy, onMount } from "svelte";
     import JZZ from 'jzz';
 
 	import { MidiNoteOff, MidiNoteOn, canvasScaleFactor } from "$lib/ts/constants/constants";
@@ -22,12 +22,6 @@
 
     let midiConnected: boolean = false;
     let midiAccess: WebMidi.MIDIAccess | null = null;
-
-    piano.addOnNoteListener((midi, release) => {
-        if (!release) {
-            pianoSampler.playNote(midi);
-        }
-    });
 
     let audioContext: AudioContext | null = null;
     let midi: Midi | null = null;
@@ -112,12 +106,21 @@
     }
 
     const _setupAudio = async () => {
-        audioContext = new AudioContext();
-        audioContext.suspend();
-    
-        Tone.start();
-        const s = new Tone.PolySynth().toDestination();
-        //pianoSynth.setSynth(s);
+        if (audioContext === null) {
+            audioContext = new AudioContext();
+            audioContext.suspend();
+
+            piano.addOnNoteListener((midi, release) => {
+                if (!release) {
+                    pianoSampler.playNote(midi);
+                }
+            });
+            // Tone.start();
+            // const s = new Tone.PolySynth().toDestination();
+            //pianoSynth.setSynth(s);
+        } else {
+            audioContext.resume();
+        }
     
         console.log("audio setup successful");
     };
@@ -193,6 +196,9 @@
             if (files === null) return;
             const file = files[0];
 
+            // hide the midi file drop hint
+            hideMidiDropHint();
+
             midi = new Midi();
             await midi.readFile(file);
             applyMidi();
@@ -210,22 +216,27 @@
             //     midiDropZone.style.display = "none";
             // };
             root.ondrop = (e: DragEvent) => {
-                midiDropZone.style.display = "none";
+                hideMidiDropHint();
             }
+        }
+
+        if (pianoRoll.hasNotes()) {
+            hideMidiDropHint();
         }
 
         // key resize listeners
         window.addEventListener("mousemove", resize);
         window.addEventListener("mouseup", resizeMouseUp);
     });
-    
-    const uploadMidi = (e: MouseEvent) => {
-        midiFileInput.click();
-    }
 
-    const onDragOver = (e: DragEvent) => {
-        e.preventDefault();
-    }
+    const hideMidiDropHint = () => {
+        midiDropZone.style.display = "none";
+    };
+
+    onDestroy(() => {
+        stop();
+        audioContext?.suspend();
+    });
 
     const changeSpeedFactor = (factor: number) => {
         pianoRoll.setSpeedFactor(factor);
@@ -268,7 +279,7 @@
 <div class="notes-wrapper">
     <div id="toolbar">
         <div>
-            <IconButton tooltip="upload midi file" onClick={uploadMidi}>
+            <IconButton tooltip="upload midi file" onClick={() => midiFileInput.click()}>
                 <Fa icon={faArrowUpFromBracket} style="margin-left: -0.5px;" />
                 <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
             </IconButton>
@@ -288,7 +299,7 @@
             </IconButton>
         </div>
         <div>
-            <Text bind:content={playbackTimeText} style="margin-right: 5px;"/>
+            <Text bind:content={playbackTimeText} style={"margin-right: 5px;"}/>
             <!-- <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/> -->
             <IconButton tooltip="reset" onClick={resetToStart} style="margin-right: 5px;">
                 <Fa icon={faRotateLeft}/>
@@ -297,10 +308,10 @@
         </div>
     </div>
     <div class="notes">
-        <div class="drop-zone" on:drop={onDrop} on:dragover={onDragOver} aria-hidden="true">
+        <div class="drop-zone" on:drop={onDrop} on:dragover|preventDefault>
             <div id="wrapper" bind:this={midiDropZone}>
                 <div id="drop-hint">
-                    <p><span style="text-decoration: underline; cursor: pointer;" on:click={uploadMidi}>upload</span> a midi file</p>
+                    <p><span style="text-decoration: underline; cursor: pointer;" on:click={() => midiFileInput.click()}>upload</span> a midi file</p>
                     <p style="margin-top: 10px;">or select one of the sample songs:</p>
                     <p style="text-decoration: underline; cursor: pointer;" on:click={() => {loadMidiFile("fuer_elise.mid");}}>Für Elise</p>
                     <p style="text-decoration: underline; cursor: pointer;" on:click={() => {loadMidiFile("never_gonna_give_you_up.mid");}}>Never gonna give you up</p>
@@ -309,17 +320,6 @@
         </div>
         <div class="note-fade-in"></div>
         <!-- <div id="dev-tools" style="display: none;">
-            <Button text="setup audio" onClick={setupAudio}/>
-            <IconButton tooltip="connect midi" onClick={connectMidi}>
-                <Fa icon={faLink} />
-            </IconButton>
-            <IconButton tooltip="upload midi" onClick={uploadMidi}>
-                <Fa icon={faArrowUpFromBracket} />
-            </IconButton>
-            <Button onClick={togglePlay} bind:text={playButtonText} />
-            <Button text="reset" onClick={resetToStart} />
-            <ToggleButton text="play notes" bind:active={playPianoNotes} onClick={togglePlayingPianoNotes}/>
-
             <Text bind:content={playbackTimeText} />
             <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
             <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>

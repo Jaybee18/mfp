@@ -22,7 +22,6 @@ export class PianoSampler {
         const noteName = midiNumberToNote(midi, (n, o) => {
             return n + o;
         }, true);
-
         new Audio("samples/mp3/" + noteName + ".mp3").play();
     }
 }
