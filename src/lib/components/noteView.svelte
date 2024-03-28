@@ -8,7 +8,7 @@
 	import Text from "./Text.svelte";
 	import IconButton from "./IconButton.svelte";
 	import Fa from "svelte-fa";
-	import { faLink, faVolumeHigh, faVolumeMute, faArrowUpFromBracket, faRotateLeft, faLinkSlash } from "@fortawesome/free-solid-svg-icons";
+	import { faLink, faVolumeHigh, faVolumeMute, faArrowUpFromBracket, faRotateLeft, faLinkSlash, faMusic } from "@fortawesome/free-solid-svg-icons";
 	import defaultConfig from "$lib/ts/Config";
 	import { Midi } from "$lib/ts/util/Midi";
 	import { piano, pianoKeys, pianoRoll, pianoSampler } from "$lib/ts/util/globals";
@@ -101,11 +101,8 @@
         const file = e.dataTransfer?.files[0];
         if (file !== undefined) {
             midi = new Midi();
-            await midi.read(file);
-            pianoRoll.setNotes(midi.getTrack(0));
-            pianoRoll.setBpm(midi.bpm);
-            pianoRoll.setTicksPerBeat(midi.ticksPerBeat);
-            pianoRoll.draw();
+            await midi.readFile(file);
+            applyMidi();
         }
     };
 
@@ -136,6 +133,17 @@
             } 
         }
     };
+
+    const applyMidi = () => {
+        if (midi === null) return;
+
+        pianoRoll.setNotes(midi);
+        pianoRoll.setBpm(midi.bpm);
+        pianoRoll.setTicksPerBeat(midi.ticksPerBeat);
+        
+        resetToStart();
+        pianoRoll.draw();
+    }
 
     // key resize logic
     let pianoResizing = false;
@@ -186,24 +194,21 @@
             const file = files[0];
 
             midi = new Midi();
-            await midi.read(file);
-            pianoRoll.setNotes(midi.getTrack(0));
-            pianoRoll.setBpm(midi.bpm);
-            pianoRoll.setTicksPerBeat(midi.ticksPerBeat);
-            pianoRoll.draw();
+            await midi.readFile(file);
+            applyMidi();
         };
 
         // show/hide the midi drop hint
         const root = document.getElementsByTagName("html")[0];
         if (midiDropZone !== null) {
-            root.ondragenter = (e: DragEvent) => {
-                // --- TODO check that the file is actually a midi file ---
-                midiDropZone.style.display = "block";
-            };
-            root.ondragleave = (e: DragEvent) => {
-                if ((e.currentTarget as HTMLElement).contains((e.relatedTarget as HTMLElement))) return;
-                midiDropZone.style.display = "none";
-            };
+            // root.ondragenter = (e: DragEvent) => {
+            //     // --- TODO check that the file is actually a midi file ---
+            //     midiDropZone.style.display = "flex";
+            // };
+            // root.ondragleave = (e: DragEvent) => {
+            //     if ((e.currentTarget as HTMLElement).contains((e.relatedTarget as HTMLElement))) return;
+            //     midiDropZone.style.display = "none";
+            // };
             root.ondrop = (e: DragEvent) => {
                 midiDropZone.style.display = "none";
             }
@@ -248,6 +253,16 @@
 
         stop();
     }
+
+    const loadMidiFile = async (path: string) => {
+        midiDropZone.style.display = "none";
+        
+        let file = await fetch(path);
+        let blob = await file.blob();
+        midi = new Midi();
+        await midi.readBlob(blob);
+        applyMidi();
+    }
 </script>
 
 <div class="notes-wrapper">
@@ -259,9 +274,9 @@
             </IconButton>
             <IconButton tooltip={midiConnected ? "disconnect midi controller" : "connect midi controller"} onClick={connectMidi}>
                 {#if midiConnected}
-                    <Fa icon={faLink} />
+                    <svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" style="overflow: visible; scale: 0.09;"><g fill-rule="evenodd"><path d="m128 193.901c-13.606 0-21.823 9.814-23.434 22.258-42.192-8.369-68.566-43.509-68.566-88.159 0-50.81 41.19-92 92-92s92 41.19 92 92c0 44.21-25.713 77.476-67.501 86.16-1.346-8.684-11.008-20.259-24.499-20.259zm-.244-18.45c16.601 0 29.657 10.87 32.244 17.732 31.34-6.861 42.826-42.019 42.826-65.183 0-40.149-36.718-76-74.826-76s-75.313 35.851-75.313 76c0 35.28 21.881 61.702 43.313 66.628 2.095-10.012 15.155-19.178 31.756-19.178z"/><circle cx="80" cy="125" r="11"/><circle cx="95" cy="92" r="11"/><circle cx="128" cy="79" r="11"/><circle cx="161" cy="92" r="11"/><circle cx="174" cy="124" r="11"/></g></svg>
                 {:else}
-                    <Fa icon={faLinkSlash} style="filter: brightness(0.5);"/>
+                    <svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" style="overflow: visible; scale: 0.09;filter: brightness(0.5);"><g fill-rule="evenodd"><path d="m128 193.901c-13.606 0-21.823 9.814-23.434 22.258-42.192-8.369-68.566-43.509-68.566-88.159 0-50.81 41.19-92 92-92s92 41.19 92 92c0 44.21-25.713 77.476-67.501 86.16-1.346-8.684-11.008-20.259-24.499-20.259zm-.244-18.45c16.601 0 29.657 10.87 32.244 17.732 31.34-6.861 42.826-42.019 42.826-65.183 0-40.149-36.718-76-74.826-76s-75.313 35.851-75.313 76c0 35.28 21.881 61.702 43.313 66.628 2.095-10.012 15.155-19.178 31.756-19.178z"/><circle cx="80" cy="125" r="11"/><circle cx="95" cy="92" r="11"/><circle cx="128" cy="79" r="11"/><circle cx="161" cy="92" r="11"/><circle cx="174" cy="124" r="11"/></g></svg>
                 {/if}
             </IconButton>
             <IconButton bind:active={$defaultConfig.playNotes} tooltip="play notes" onClick={setupAudio}>
@@ -278,23 +293,21 @@
             <IconButton tooltip="reset" onClick={resetToStart} style="margin-right: 5px;">
                 <Fa icon={faRotateLeft}/>
             </IconButton>
-            <!-- <IconButton bind:active={isPlaying} tooltip={isPlaying ? "pause" : "play"} onClick={togglePlay}>
-                {#if isPlaying}
-                    <Fa icon={faPause} style="margin-right: -1px;"/>
-                {:else}
-                    <Fa icon={faPlay} style="margin-right: -1px;"/>
-                {/if}
-            </IconButton> -->
             <Button onClick={togglePlay} bind:text={playButtonText} />
         </div>
     </div>
     <div class="notes">
-        <div bind:this={midiDropZone} class="drop-zone" on:drop={onDrop} on:dragover={onDragOver} aria-hidden="true">
-            <div>
-                Drop MIDI file here
+        <div class="drop-zone" on:drop={onDrop} on:dragover={onDragOver} aria-hidden="true">
+            <div id="wrapper" bind:this={midiDropZone}>
+                <div id="drop-hint">
+                    <p><span style="text-decoration: underline; cursor: pointer;" on:click={uploadMidi}>upload</span> a midi file</p>
+                    <p style="margin-top: 10px;">or select one of the sample songs:</p>
+                    <p style="text-decoration: underline; cursor: pointer;" on:click={() => {loadMidiFile("fuer_elise.mid");}}>Für Elise</p>
+                    <p style="text-decoration: underline; cursor: pointer;" on:click={() => {loadMidiFile("never_gonna_give_you_up.mid");}}>Never gonna give you up</p>
+                </div>
             </div>
         </div>
-        <div class="note-shadow"></div>
+        <div class="note-fade-in"></div>
         <!-- <div id="dev-tools" style="display: none;">
             <Button text="setup audio" onClick={setupAudio}/>
             <IconButton tooltip="connect midi" onClick={connectMidi}>
@@ -350,6 +363,10 @@
                 display: flex;
                 flex-direction: row;
                 align-items: center;
+
+                svg {
+                    fill: $text-color;
+                }
             }
         }
 
@@ -361,21 +378,45 @@
 
             .drop-zone {
                 position: absolute;
-                background-color: #4aaaa333;
                 width: 100%;
                 height: 100%;
                 border-radius: 20px;
-                border: 2px dashed black;
                 box-sizing: border-box;
-                z-index: 1;
+                z-index: 2;
                 
                 display: flex;
-                display: none;
                 justify-content: center;
                 align-items: center;
+
+                #wrapper {
+                    width: 100%;
+                    height: 100%;
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+
+                    color: $text-color;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 14px;
+
+                    #drop-hint {
+                        flex: 1;
+                        box-sizing: border-box;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        color: #000000da;
+
+                        p {
+                            color: $text-color;
+                            margin: 0;
+                        }
+                    }
+                }
             }
             
-            .note-shadow {
+            .note-fade-in {
                 // 90% gives the illusion of a padding to the control ribbon and
                 // makes the note view look less dense
                 background: linear-gradient(0deg, rgba(0,0,0,0) 0%, $background 90%);

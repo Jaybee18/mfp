@@ -8,10 +8,10 @@
         <p>Automatically let the virtual piano play the midi notes</p>
         <ToggleButton text={$defaultConfig.playNotes ? "enabled" : "disabled"} bind:active={$defaultConfig.playNotes}/>
     </div>
-    <div id="settings-item">
+    <!-- <div id="settings-item">
         <p>Number of octaves in virtual keyboard</p>
         <ValueSlider text="octaves" bind:defaultValue={$defaultConfig.numOctaves} onChange={v => $defaultConfig.numOctaves = v}/>
-    </div>
+    </div> -->
     <div id="settings-item">
         <p>Wait until notes are played</p>
         <ToggleButton text={$defaultConfig.stopUntilNotePress ? "enabled" : "disabled"} bind:active={$defaultConfig.stopUntilNotePress}/>

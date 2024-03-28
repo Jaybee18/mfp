@@ -12,27 +12,39 @@ export class Midi {
 
     constructor() {}
 
-    public async read(file: File) {
+    public async readBlob(blob: Blob) {
+        const midiFileParser = new MidiParser();
+        const tmp = midiFileParser.parse(new Uint8Array(await blob.arrayBuffer()));
+        if (!tmp) return;
+        this.read(tmp as MIDI);
+    }
+
+    public async readFile(file: File) {
         if (file === undefined) return;
         const midiFileParser = new MidiParser();
         const tmp = midiFileParser.parse(new Uint8Array(await file.arrayBuffer()));
+        if (!tmp) return;
+        this.read(tmp as MIDI);
+    }
+
+    private async read(midi: MIDI) {
         
-        if (!tmp) {
+        if (!midi) {
             console.log("failed to parse midi");
             return;
         }
 
-        const res = parseMidi((tmp as MIDI).track);
+        const res = parseMidi(midi.track);
 
-        this._trackCount = (tmp as MIDI).tracks;
+        this._trackCount = midi.tracks;
         this._trackLength = getTrackLength(res);
-        this._bpm = (tmp as MIDI).bpm;
-        if (typeof (tmp as MIDI).timeDivision === "number")
-            this._timeDivision = (tmp as MIDI).timeDivision as number;
-        this._formatType = (tmp as MIDI).formatType;
+        this._bpm = midi.bpm;
+        if (typeof midi.timeDivision === "number")
+            this._timeDivision = midi.timeDivision as number;
+        this._formatType = midi.formatType;
         this._tracks.push(res);
-        if (typeof (tmp as MIDI).timeDivision === "number")
-            this._ticksPerBeat = (tmp as MIDI).timeDivision as number;
+        if (typeof midi.timeDivision === "number")
+            this._ticksPerBeat = midi.timeDivision as number;
 
         console.log(this)
     }
