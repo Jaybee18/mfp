@@ -10,23 +10,23 @@
 
 A free piano learning web-app for midi devices.
 
-## Roadmap
-### v0.1
-- [x] decent ui
-- [x] import midi
-- [x] play midi
+## v0.3
+![image](https://github.com/Jaybee18/mfp/assets/64578396/7f31d611-bc5a-45cf-9910-18733204b847)
+- [x] label keys / notes - option
+- [x] stop when note isn't hit; resume when hit - option
 
-### v0.2
+
+## v0.2
+![image](https://github.com/Jaybee18/mfp/assets/64578396/67f58caa-867c-40cf-ae66-6ac784908bf0)
 - [x] adjust viewport (ticks shown)
 - [x] adjust playback speed
 - [x] better ui?
-![image](https://github.com/Jaybee18/mfp/assets/64578396/67f58caa-867c-40cf-ae66-6ac784908bf0)
 
 
-### v0.3
-- [x] label keys / notes - option
-- [x] stop when note isn't hit; resume when hit - option
-![image](https://github.com/Jaybee18/mfp/assets/64578396/89d9cae8-c257-4ab9-b605-e13b5d2a31ce)
+## v0.1
+- [x] decent ui
+- [x] import midi
+- [x] play midi
 
 
 ## backlog
