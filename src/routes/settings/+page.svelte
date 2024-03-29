@@ -1,17 +1,17 @@
 <script lang="ts">
 	import ToggleButton from "$lib/components/ToggleButton.svelte";
     import ValueSlider from '$lib/components/ValueSlider.svelte';
-	import defaultConfig from "$lib/ts/Config";
+	import defaultConfig, { setNumOctaves } from "$lib/ts/util/Config";
 </script>
 <div id="main">
     <div id="settings-item">
         <p>Automatically let the virtual piano play the midi notes</p>
-        <ToggleButton text={$defaultConfig.playNotes ? "enabled" : "disabled"} bind:active={$defaultConfig.playNotes}/>
+        <ToggleButton text={$defaultConfig.virtualPiano ? "enabled" : "disabled"} bind:active={$defaultConfig.virtualPiano}/>
     </div>
-    <!-- <div id="settings-item">
+    <div id="settings-item">
         <p>Number of octaves in virtual keyboard</p>
-        <ValueSlider text="octaves" bind:defaultValue={$defaultConfig.numOctaves} onChange={v => $defaultConfig.numOctaves = v}/>
-    </div> -->
+        <ValueSlider text="octaves" bind:value={$defaultConfig.numOctaves} min={1} max={7}/>
+    </div>
     <div id="settings-item">
         <p>Wait until notes are played</p>
         <ToggleButton text={$defaultConfig.stopUntilNotePress ? "enabled" : "disabled"} bind:active={$defaultConfig.stopUntilNotePress}/>

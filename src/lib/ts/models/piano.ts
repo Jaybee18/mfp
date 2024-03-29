@@ -1,5 +1,5 @@
-import defaultConfig, { type Config, subscribeToConfig } from "./Config";
-import { MidiNoteOff, MidiNoteOn, middleCMidiNumber } from "./constants/constants";
+import defaultConfig from "../util/Config";
+import { MidiNoteOff, MidiNoteOn, middleCMidiNumber } from "../constants/constants";
 
 // get middle c index relative to octave number (including sharp keys)
 function getMiddleCIndex(octaves: number) {
@@ -22,25 +22,32 @@ function getMiddleCIndex(octaves: number) {
 }
 
 export class Piano {
-    private numKeys: number;
-    private numNaturalKeys: number;
-    private middleCIndex: number;
-    private leftMostKeyMidi: number;
+    private numKeys: number = 0;
+    private numOctaves: number = 0;
+    private numNaturalKeys: number = 0;
+    private middleCIndex: number = 0;
+    private leftMostKeyMidi: number = 0;
 
     private pressedNotes: number[] = [];
     private onNoteListeners: ((midi: number, release: boolean) => void)[] = [];
 
-    private config: Config | null = null;
+    private subscribers: (() => void)[] = [];
 
     constructor() {
-        subscribeToConfig((value) => {
-            this.config = value;
+        defaultConfig.subscribe((v) => {
+            this.numKeys = 12 * v.numOctaves + 1;
+            this.numOctaves = v.numOctaves;
+            this.numNaturalKeys = 7 * v.numOctaves + 1;
+            this.middleCIndex = getMiddleCIndex(v.numOctaves);
+            this.leftMostKeyMidi = middleCMidiNumber - this.middleCIndex;
+
+            this.subscribers.forEach(fn => fn());
         });
 
-        this.numKeys = 12 * this.config?.numOctaves + 1;
-        this.numNaturalKeys = 7 * this.config?.numOctaves + 1;
-        this.middleCIndex = getMiddleCIndex(this.config?.numOctaves);
-        this.leftMostKeyMidi = middleCMidiNumber - this.middleCIndex;
+    }
+
+    public subscribe(fn: () => void) {
+        this.subscribers.push(fn);
     }
 
     public getNumNaturalKeys() {
@@ -106,6 +113,6 @@ export class Piano {
     }
 
     public getOctaves() {
-        return this.config?.numOctaves;
+        return this.numOctaves;
     }
 }

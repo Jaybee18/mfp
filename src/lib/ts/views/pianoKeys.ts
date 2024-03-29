@@ -1,7 +1,7 @@
-import { highlight, highlightDark, pianoKeyOutlineWidth, sharpKeyHeightFactor, sharpKeyWidthFactor } from "./constants/constants";
-import { midiNumberToNote } from "./util/notes";
-import type { Piano } from "./piano";
-import { type Config, subscribeToConfig } from "./Config";
+import { highlight, highlightDark, pianoKeyOutlineWidth, sharpKeyHeightFactor, sharpKeyWidthFactor } from "../constants/constants";
+import type { Piano } from "../models/piano";
+import defaultConfig from "../util/Config";
+import { midiNumberToNote } from "../util/Midi";
 
 export class PianoKeys {
 
@@ -10,25 +10,20 @@ export class PianoKeys {
 
     private width: number = 0;
     private height: number = 0;
-
-    private config: Config | null = null;
     
+    private drawNoteLabels: boolean = false;
+
     constructor(piano: Piano) {
         this.piano = piano;
 
-        subscribeToConfig((value) => {
-            this.config = value;
-        })
+        defaultConfig.subscribe(v => {
+            this.drawNoteLabels = v.drawNoteLabels;
+        });
     }
 
     public setCanvas(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         const { width, height } = canvas.getBoundingClientRect();
-        const dpi = window.devicePixelRatio;
-        const style_width = getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
-        const style_height = getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
-        canvas.setAttribute("width", (Number(style_width) * dpi).toString());
-        canvas.setAttribute("height", (Number(style_height) * dpi).toString());
         this.width = width;
         this.height = height;
     }
@@ -63,7 +58,7 @@ export class PianoKeys {
             ctx.fillRect(naturalKeyWidth * i, 0, naturalKeyWidth, height);
 
             // key label
-            if (this.config?.drawNoteLabels) {
+            if (this.drawNoteLabels) {
                 ctx.fillStyle = "#000000";
                 ctx.font = Math.floor(naturalKeyWidth*0.6).toString() + "px Courier New, Courier, monospace";
                 ctx.fillText(midiNumberToNote(this.piano.getMidiAtIndex(absoluteIndex)), naturalKeyWidth * i + 3.5, height - 5, naturalKeyWidth);
@@ -109,4 +104,10 @@ export class PianoKeys {
             ctx.strokeRect(naturalKeyWidth * i + naturalKeyWidth - sharpKeyWidth / 2, 0, sharpKeyWidth, height * sharpKeyHeightFactor);
         }
     }
+}
+
+function getKeyboardKeyForMidi(midi: number): string {
+    const remainder = midi % 12;
+    const letters = ["a", "w", "s", "e", "d", "f", "t", "g", "z", "h", "u", "j"];
+    return letters[remainder];
 }

@@ -1,12 +1,15 @@
-import type { Piano } from '../piano';
-import { midiNumberToNote } from '../util/notes';
+import type { Piano } from '../models/piano';
 import { MidiNoteOff, MidiNoteOn } from '../constants/constants';
+import { midiNumberToNote } from '../util/Midi';
+import { Instrument } from './Instrument';
 
-export class PianoSampler {
+export class PianoSampler extends Instrument {
 
     private piano: Piano;
 
     constructor(piano: Piano) {
+        super();
+
         this.piano = piano;
     }
 

@@ -1,11 +1,11 @@
-import { Piano } from "../piano";
-import { PianoKeys } from "../pianoKeys";
-import { PianoRoll } from "../pianoRoll";
+import { Piano } from "../models/piano";
+import { PianoKeys } from "../views/pianoKeys";
+import { PianoRoll } from "../views/pianoRoll";
 import { PianoSynth } from "../audio/pianoSynth";
 import { PianoSampler } from "../audio/pianoSampler";
+import { Instrument } from "../audio/Instrument";
 
 export const piano: Piano = new Piano();
 export const pianoRoll: PianoRoll = new PianoRoll(piano);
 export const pianoKeys: PianoKeys = new PianoKeys(piano);
-//export const pianoSynth: PianoSynth = new PianoSynth(piano);
-export const pianoSampler: PianoSampler = new PianoSampler(piano);
+export const instrument: Instrument = new PianoSampler(piano);

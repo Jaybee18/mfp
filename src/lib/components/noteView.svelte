@@ -9,9 +9,9 @@
 	import IconButton from "./IconButton.svelte";
 	import Fa from "svelte-fa";
 	import { faLink, faVolumeHigh, faVolumeMute, faArrowUpFromBracket, faRotateLeft, faLinkSlash, faMusic } from "@fortawesome/free-solid-svg-icons";
-	import defaultConfig from "$lib/ts/Config";
+	import defaultConfig from "$lib/ts/util/Config";
 	import { Midi } from "$lib/ts/util/Midi";
-	import { piano, pianoKeys, pianoRoll, pianoSampler } from "$lib/ts/util/globals";
+	import { piano, pianoKeys, pianoRoll, instrument } from "$lib/ts/util/globals";
 
     let playButtonText: string = "play";
     let playbackTimeText: string = "";
@@ -33,7 +33,7 @@
     const onMidiIn = (e: MIDIMessageEvent) => {
         if (e.data[0] === MidiNoteOn || e.data[0] === MidiNoteOff) {
             piano.midiEvent(e);
-            pianoSampler.midiEvent(e);
+            instrument.midiEvent(e);
             
             // show pressed keys even when no midi is playing
             updatePianoKeys();
@@ -63,12 +63,12 @@
 
         const inputs = access.inputs;
 
-        console.log(inputs.values());
-        console.log(inputs.keys());
         inputs.forEach(port => {
             console.log(port);
             port.onmidimessage = onMidiIn;
         })
+
+        console.log("midi setup successful");
     };
 
     const midiAccessDenied = () => {
@@ -112,7 +112,7 @@
 
             piano.addOnNoteListener((midi, release) => {
                 if (!release) {
-                    pianoSampler.playNote(midi);
+                    instrument.playNote(midi);
                 }
             });
             // Tone.start();
@@ -204,29 +204,9 @@
             applyMidi();
         };
 
-        // show/hide the midi drop hint
-        const root = document.getElementsByTagName("html")[0];
-        if (midiDropZone !== null) {
-            // root.ondragenter = (e: DragEvent) => {
-            //     // --- TODO check that the file is actually a midi file ---
-            //     midiDropZone.style.display = "flex";
-            // };
-            // root.ondragleave = (e: DragEvent) => {
-            //     if ((e.currentTarget as HTMLElement).contains((e.relatedTarget as HTMLElement))) return;
-            //     midiDropZone.style.display = "none";
-            // };
-            root.ondrop = (e: DragEvent) => {
-                hideMidiDropHint();
-            }
-        }
-
         if (pianoRoll.hasNotes()) {
             hideMidiDropHint();
         }
-
-        // key resize listeners
-        window.addEventListener("mousemove", resize);
-        window.addEventListener("mouseup", resizeMouseUp);
     });
 
     const hideMidiDropHint = () => {
@@ -237,15 +217,6 @@
         stop();
         audioContext?.suspend();
     });
-
-    const changeSpeedFactor = (factor: number) => {
-        pianoRoll.setSpeedFactor(factor);
-    }
-
-    const onChangeValue = (value: number) => {
-        pianoRoll.setBpm(value);
-        pianoRoll.draw();
-    }
 
     const togglePlay = (e: MouseEvent) => {
         if (pianoRoll.isPlaying()) {
@@ -276,6 +247,7 @@
     }
 </script>
 
+<svelte:window on:mousemove={resize} on:mouseup={resizeMouseUp} on:drop={hideMidiDropHint}/>
 <div class="notes-wrapper">
     <div id="toolbar">
         <div>
@@ -290,8 +262,8 @@
                     <svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" style="overflow: visible; scale: 0.09;filter: brightness(0.5);"><g fill-rule="evenodd"><path d="m128 193.901c-13.606 0-21.823 9.814-23.434 22.258-42.192-8.369-68.566-43.509-68.566-88.159 0-50.81 41.19-92 92-92s92 41.19 92 92c0 44.21-25.713 77.476-67.501 86.16-1.346-8.684-11.008-20.259-24.499-20.259zm-.244-18.45c16.601 0 29.657 10.87 32.244 17.732 31.34-6.861 42.826-42.019 42.826-65.183 0-40.149-36.718-76-74.826-76s-75.313 35.851-75.313 76c0 35.28 21.881 61.702 43.313 66.628 2.095-10.012 15.155-19.178 31.756-19.178z"/><circle cx="80" cy="125" r="11"/><circle cx="95" cy="92" r="11"/><circle cx="128" cy="79" r="11"/><circle cx="161" cy="92" r="11"/><circle cx="174" cy="124" r="11"/></g></svg>
                 {/if}
             </IconButton>
-            <IconButton bind:active={$defaultConfig.playNotes} tooltip="play notes" onClick={setupAudio}>
-                {#if $defaultConfig.playNotes}
+            <IconButton bind:active={$defaultConfig.virtualPiano} tooltip="play notes" onClick={setupAudio}>
+                {#if $defaultConfig.virtualPiano}
                     <Fa icon={faVolumeHigh} scale={1.1} style="margin-left: -2px;"/>
                 {:else}
                     <Fa icon={faVolumeMute} scale={1.1} style="margin-left: -2px; filter: brightness(0.5);"/>

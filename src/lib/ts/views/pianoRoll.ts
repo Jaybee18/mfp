@@ -1,10 +1,9 @@
-import { canvasScaleFactor, canvasText, noteHit, secondsPerViewport } from "./constants/constants";
-import { highlightDark } from "./constants/constants";
-import { highlight, pianoRollFps, sharpKeyWidthFactor } from "./constants/constants";
-import type { Note } from "./util/notes";
-import type { Piano } from "./piano";
-import defaultConfig, { subscribeToConfig, type Config } from "./Config";
-import type { Midi } from "./util/Midi";
+import { canvasScaleFactor, canvasText, noteHit, secondsPerViewport } from "../constants/constants";
+import { highlightDark } from "../constants/constants";
+import { highlight, pianoRollFps, sharpKeyWidthFactor } from "../constants/constants";
+import type { Piano } from "../models/piano";
+import defaultConfig from "../util/Config";
+import type { Midi, Note } from "../util/Midi";
 
 export class PianoRoll {
     public width: number = 0;
@@ -14,8 +13,6 @@ export class PianoRoll {
     public ticksPerBeat: number = 1;
     public viewportTicks: number = 96 * 50;
     public speedFactor: number = 1;
-
-    private config: Config | null = null;
 
     private deltaTicks: number = 1;
 
@@ -28,19 +25,25 @@ export class PianoRoll {
     private midi: Midi | null = null;
 
     private _isPlaying: boolean = false;
+    private virtualPiano: boolean = false;
+    private stopUntilNotePress: boolean = false;
 
     public drawNote: ((ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, isSharp: boolean) => void) | null = null;
 
     constructor(piano: Piano, canvas?: HTMLCanvasElement) {
         this.piano = piano;
+        this.piano.subscribe(() => {
+            this.calculateKeyWidths();
+        });
 
         if (canvas !== undefined)
             this.setCanvas(canvas);
 
         this.calculateKeyWidths();
 
-        subscribeToConfig((value) => {
-            this.config = value;
+        defaultConfig.subscribe(v => {
+            this.virtualPiano = v.virtualPiano;
+            this.stopUntilNotePress = v.stopUntilNotePress;
         });
     }
 
@@ -160,7 +163,6 @@ export class PianoRoll {
 
         ctx.fillStyle = highlight;
         const notePaddingFactor = 0.9;
-        this.calculateKeyWidths();
 
         const highlightedNotes: Note[] = [];
         for (const note of this.midi.getTrack(0)) {
@@ -195,7 +197,7 @@ export class PianoRoll {
                 ctx.closePath();
             }
 
-            if (this.config?.playNotes) {
+            if (this.virtualPiano) {
                 // visualizing the keys
                 if (this.time > note.startTime && this.time < note.startTime + note.duration) {
                     highlightedNotes.push(note);
@@ -262,7 +264,7 @@ export class PianoRoll {
     public tick() {
         if (this.midi === null) return;
 
-        if (this.config?.stopUntilNotePress) {
+        if (this.stopUntilNotePress) {
             let allNecessaryNotesDown = true;
             for (const note of this.midi.getTrack(0)) {
                 if (this.time - this.deltaTicks <= note.startTime && this.time > note.startTime) {
