@@ -105,29 +105,58 @@ export class PianoKeys {
         }
     }
 
-    public mouseKeyPress(e: MouseEvent) {
+    public mouseKeyPress(e: MouseEvent, down=true) {
+        // this only works under the assumption that you can only hold
+        // one key at a time with the mouse (touchpad or sth like that won't work)
+        if (!down) {
+            this.piano.releaseAll();
+            this.draw();
+            return;
+        }
+
+        if (this.canvas === null) return;
+
+        const { width, height } = this.canvas.getBoundingClientRect();
         const numNaturalKeys = this.piano.getOctaves() * 7 + 1;
-        const naturalKeyWidth = this.width / numNaturalKeys;
+        const naturalKeyWidth = width / numNaturalKeys;
         const sharpKeyWidth = naturalKeyWidth * sharpKeyWidthFactor;
 
         // sharp keys
+        let absoluteIndex = 1;
         for (let i = 0; i < numNaturalKeys; i++) {
-            //if (i % 7 === 2 || i % 7 === 6 || i === numNaturalKeys - 1) continue;
-            if (isPointInRect(naturalKeyWidth * i + naturalKeyWidth - sharpKeyWidth / 2, 0, sharpKeyWidth, this.height * sharpKeyHeightFactor, e.offsetX, e.offsetY)) {
-                console.log("sharp")
+            if (i % 7 === 2 || i % 7 === 6 || i === numNaturalKeys - 1) {
+                absoluteIndex++;
+                continue;
+            }
+            if (isPointInRect(naturalKeyWidth * i + naturalKeyWidth - sharpKeyWidth / 2, 0, sharpKeyWidth, height * sharpKeyHeightFactor, e.offsetX, e.offsetY)) {
+                if (down)
+                    this.piano.press(this.piano.getMidiAtIndex(absoluteIndex));
+                else
+                    this.piano.release(this.piano.getMidiAtIndex(absoluteIndex));
+                this.draw();
                 return;
             }
+            absoluteIndex += 2;
         }
 
         // natural keys
+        absoluteIndex = 0;
         for (let i = 0; i < numNaturalKeys; i++) {
-            if (isPointInRect(naturalKeyWidth * i, 0, naturalKeyWidth, this.height, e.offsetX, e.offsetY)) {
-                console.log("natural")
+            if (isPointInRect(naturalKeyWidth * i, 0, naturalKeyWidth, height, e.offsetX, e.offsetY)) {
+                if (down)
+                    this.piano.press(this.piano.getMidiAtIndex(absoluteIndex));
+                else
+                    this.piano.release(this.piano.getMidiAtIndex(absoluteIndex));
+                this.draw();
                 return;
             }
-        }
 
-        console.log(e)
+            if (i % 7 === 2 || i % 7 === 6 || i === numNaturalKeys - 1) {
+                absoluteIndex++;
+            } else {
+                absoluteIndex += 2;
+            }
+        }
     }
 }
 

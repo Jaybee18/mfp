@@ -3,16 +3,22 @@ import { MidiNoteOff, MidiNoteOn } from '../constants/constants';
 import { type PolySynth } from 'tone';
 import { midiNumberToNote } from '../util/Midi';
 import { Instrument } from './Instrument';
+import defaultConfig from '../util/Config';
 
 export class PianoSynth extends Instrument {
 
     private synth: PolySynth | null = null;
     private piano: Piano;
+    private volume: number = 0;
 
     constructor(piano: Piano) {
         super();
 
         this.piano = piano;
+        
+        defaultConfig.subscribe(v => {
+            this.volume = v.volume;
+        });
     }
 
     public setSynth(synth: PolySynth) {

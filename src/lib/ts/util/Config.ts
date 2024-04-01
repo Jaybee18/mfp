@@ -1,4 +1,4 @@
-import { type Writable, writable, type Subscriber } from "svelte/store";
+import { type Writable, writable } from "svelte/store";
 
 export type Config = {
     speedFactor: number,
@@ -8,16 +8,18 @@ export type Config = {
     virtualPiano: boolean,
     stopUntilNotePress: boolean,
     numOctaves: number,
+    volume: number,
 }
 
-let defaultConfig: Writable<Config> = writable({
+const defaultConfig: Writable<Config> = writable({
     speedFactor: 1,
     drawNoteLabels: false,
     drawBeatLabels: false,
     drawBeatLines: true,
     virtualPiano: false,
-    stopUntilNotePress: false,
-    numOctaves: 5,
+    stopUntilNotePress: true,
+    numOctaves: 4,
+    volume: 0.5,
 });
 
 export function setSpeedFactor(factor: number): boolean {
@@ -81,6 +83,17 @@ export function setNumOctaves(num: number): boolean {
 
     defaultConfig.update(v => {
         v.numOctaves = num;
+        return v;
+    });
+
+    return true;
+}
+
+export function setVolume(volume: number): boolean {
+    if (volume < 0 || volume > 1) return false;
+
+    defaultConfig.update(v => {
+        v.volume = volume;
         return v;
     });
 

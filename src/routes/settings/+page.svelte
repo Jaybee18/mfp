@@ -9,16 +9,16 @@
         <ToggleButton text={$defaultConfig.virtualPiano ? "enabled" : "disabled"} bind:active={$defaultConfig.virtualPiano}/>
     </div>
     <div id="settings-item">
-        <p>Number of octaves in virtual keyboard</p>
-        <ValueSlider text="octaves" bind:value={$defaultConfig.numOctaves} min={1} max={7}/>
-    </div>
-    <div id="settings-item">
         <p>Wait until notes are played</p>
         <ToggleButton text={$defaultConfig.stopUntilNotePress ? "enabled" : "disabled"} bind:active={$defaultConfig.stopUntilNotePress}/>
     </div>
     <div id="settings-item">
         <p>Note labels on piano keys</p>
         <ToggleButton text={$defaultConfig.drawNoteLabels ? "enabled" : "disabled"} bind:active={$defaultConfig.drawNoteLabels}/>
+    </div>
+    <div id="settings-item">
+        <p>Number of octaves in virtual keyboard</p>
+        <ValueSlider text="octaves" bind:value={$defaultConfig.numOctaves} min={1} max={7}/>
     </div>
 </div>
 

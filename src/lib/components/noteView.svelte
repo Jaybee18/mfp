@@ -4,12 +4,13 @@
 
 	import { MidiNoteOff, MidiNoteOn, canvasScaleFactor } from "$lib/ts/constants/constants";
 	import Button from "$lib/components/Button.svelte";
+    import VolumeSlider from "$lib/components/VolumeSlider.svelte";
     import * as Tone from 'tone';
 	import Text from "./Text.svelte";
 	import IconButton from "./IconButton.svelte";
 	import Fa from "svelte-fa";
 	import { faLink, faVolumeHigh, faVolumeMute, faArrowUpFromBracket, faRotateLeft, faLinkSlash, faMusic } from "@fortawesome/free-solid-svg-icons";
-	import defaultConfig from "$lib/ts/util/Config";
+	import defaultConfig, { setVirtualPiano, setVolume } from "$lib/ts/util/Config";
 	import { Midi } from "$lib/ts/util/Midi";
 	import { piano, pianoKeys, pianoRoll, instrument } from "$lib/ts/util/globals";
 
@@ -125,7 +126,7 @@
         console.log("audio setup successful");
     };
 
-    const setupAudio = (e: MouseEvent) => {
+    const setupAudio = () => {
         if (audioContext === null) {
             try {
                 _setupAudio().then().catch((err) => {
@@ -246,17 +247,24 @@
         applyMidi();
     }
 
-    const pianoKeyPress = (e: MouseEvent) => {
+    const pianoKeyDown = (e: MouseEvent) => {
+        // just relying on the window event listener takes too long
+        // so this is a bit redundant but necessary
+        setupAudio();
         pianoKeys.mouseKeyPress(e);
+    };
+
+    const pianoKeyUp = (e: MouseEvent) => {
+        pianoKeys.mouseKeyPress(e, false);
     };
 </script>
 
-<svelte:window on:mousemove={resize} on:mouseup={resizeMouseUp} on:drop={hideMidiDropHint}/>
+<svelte:window on:mousemove={resize} on:mouseup={resizeMouseUp} on:drop={hideMidiDropHint} on:mousedown={setupAudio}/>
 <div class="notes-wrapper">
     <div id="toolbar">
         <div>
             <IconButton tooltip="upload midi file" onClick={() => midiFileInput.click()}>
-                <Fa icon={faArrowUpFromBracket} style="margin-left: -0.5px;" />
+                <Fa icon={faArrowUpFromBracket} style="margin-right: -1px;" />
                 <input bind:this={midiFileInput} type="file" style="display: none;" accept="audio/midi"/>
             </IconButton>
             <IconButton tooltip={midiConnected ? "disconnect midi controller" : "connect midi controller"} onClick={connectMidi}>
@@ -266,17 +274,19 @@
                     <svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" style="overflow: visible; scale: 0.09;filter: brightness(0.5);"><g fill-rule="evenodd"><path d="m128 193.901c-13.606 0-21.823 9.814-23.434 22.258-42.192-8.369-68.566-43.509-68.566-88.159 0-50.81 41.19-92 92-92s92 41.19 92 92c0 44.21-25.713 77.476-67.501 86.16-1.346-8.684-11.008-20.259-24.499-20.259zm-.244-18.45c16.601 0 29.657 10.87 32.244 17.732 31.34-6.861 42.826-42.019 42.826-65.183 0-40.149-36.718-76-74.826-76s-75.313 35.851-75.313 76c0 35.28 21.881 61.702 43.313 66.628 2.095-10.012 15.155-19.178 31.756-19.178z"/><circle cx="80" cy="125" r="11"/><circle cx="95" cy="92" r="11"/><circle cx="128" cy="79" r="11"/><circle cx="161" cy="92" r="11"/><circle cx="174" cy="124" r="11"/></g></svg>
                 {/if}
             </IconButton>
-            <IconButton bind:active={$defaultConfig.virtualPiano} tooltip="play notes" onClick={setupAudio}>
+            <IconButton bind:active={$defaultConfig.virtualPiano} tooltip={$defaultConfig.virtualPiano ? "disable virtual piano" : "enable virtual piano"} onClick={setupAudio}>
                 {#if $defaultConfig.virtualPiano}
-                    <Fa icon={faVolumeHigh} scale={1.1} style="margin-left: -2px;"/>
+                    <svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" style="overflow: visible; scale: 0.09;"><path d="m48 51.995a4 4 0 0 1 3.996-3.995h13.524a3.987 3.987 0 0 1 3.984 3.998l-.23 74.785a1 1 0 0 0 1.003 1.01h13.729a3.997 3.997 0 0 1 3.994 4.003v72.198a4.006 4.006 0 0 1 -4 4.006h-32c-2.21 0-4-1.797-4-3.995zm160-.672c0-1.835-1.51-3.323-3.379-3.323h-13.914c-1.866 0-3.379 1.488-3.379 3.327l.266 75.636a.835.835 0 0 1 -.845.83h-15.877c-1.862 0-3.372 1.495-3.372 3.318v73.57c0 1.833 1.514 3.319 3.383 3.319h33.734c1.868 0 3.383-1.482 3.383-3.323zm-91.735 1.101a4.083 4.083 0 0 1 4.005-4.073l15.441-.275a3.92 3.92 0 0 1 4.005 3.932v75.438c0 .553.452.987 1.005.968l7.29-.247a3.83 3.83 0 0 1 3.989 3.86v72.035a4 4 0 0 1 -4 3.996h-39.646a4.017 4.017 0 0 1 -4.019-3.996l-.335-72.035a3.974 3.974 0 0 1 3.987-3.995h7.273c.555 0 1.005-.448 1.005-1.007v-74.6z" fill-rule="evenodd"/></svg>
                 {:else}
-                    <Fa icon={faVolumeMute} scale={1.1} style="margin-left: -2px; filter: brightness(0.5);"/>
+                    <svg height="256" width="256" xmlns="http://www.w3.org/2000/svg" style="overflow: visible; scale: 0.09; filter: brightness(0.5);"><path d="m48 51.995a4 4 0 0 1 3.996-3.995h13.524a3.987 3.987 0 0 1 3.984 3.998l-.23 74.785a1 1 0 0 0 1.003 1.01h13.729a3.997 3.997 0 0 1 3.994 4.003v72.198a4.006 4.006 0 0 1 -4 4.006h-32c-2.21 0-4-1.797-4-3.995zm160-.672c0-1.835-1.51-3.323-3.379-3.323h-13.914c-1.866 0-3.379 1.488-3.379 3.327l.266 75.636a.835.835 0 0 1 -.845.83h-15.877c-1.862 0-3.372 1.495-3.372 3.318v73.57c0 1.833 1.514 3.319 3.383 3.319h33.734c1.868 0 3.383-1.482 3.383-3.323zm-91.735 1.101a4.083 4.083 0 0 1 4.005-4.073l15.441-.275a3.92 3.92 0 0 1 4.005 3.932v75.438c0 .553.452.987 1.005.968l7.29-.247a3.83 3.83 0 0 1 3.989 3.86v72.035a4 4 0 0 1 -4 3.996h-39.646a4.017 4.017 0 0 1 -4.019-3.996l-.335-72.035a3.974 3.974 0 0 1 3.987-3.995h7.273c.555 0 1.005-.448 1.005-1.007v-74.6z" fill-rule="evenodd"/></svg>
                 {/if}
             </IconButton>
+            <VolumeSlider />
         </div>
         <div>
             <Text bind:content={playbackTimeText} style={"margin-right: 5px;"}/>
             <!-- <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/> -->
+            <!-- <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/> -->
             <IconButton tooltip="reset" onClick={resetToStart} style="margin-right: 5px;">
                 <Fa icon={faRotateLeft}/>
             </IconButton>
@@ -284,27 +294,29 @@
         </div>
     </div>
     <div class="notes">
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div class="drop-zone" on:drop={onDrop} on:dragover|preventDefault>
             <div id="wrapper" bind:this={midiDropZone}>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                 <div id="drop-hint">
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
                     <p><span style="text-decoration: underline; cursor: pointer;" on:click={() => midiFileInput.click()}>upload</span> a midi file</p>
                     <p style="margin-top: 10px;">or select one of the sample songs:</p>
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <p style="text-decoration: underline; cursor: pointer;" on:click={() => {loadMidiFile("fuer_elise.mid");}}>Für Elise</p>
                     <p style="text-decoration: underline; cursor: pointer;" on:click={() => {loadMidiFile("never_gonna_give_you_up.mid");}}>Never gonna give you up</p>
                 </div>
             </div>
         </div>
         <div class="note-fade-in"></div>
-        <!-- <div id="dev-tools" style="display: none;">
-            <Text bind:content={playbackTimeText} />
-            <ValueSlider text="BPM" defaultValue={120} onChange={onChangeValue}/>
-            <ValueSlider text="speed" defaultValue={1} delta={0.01} onChange={changeSpeedFactor}/>
-        </div> -->
         <canvas bind:this={pianoRollCanvas} id="notes"></canvas>
     </div>
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div id="resize-handle" on:mousedown={resizeMouseDown}></div>
-    <canvas bind:this={pianoKeysCanvas} id="piano" on:click={pianoKeyPress}></canvas>
+    <canvas bind:this={pianoKeysCanvas} id="piano" on:mousedown={pianoKeyDown} on:mouseup={pianoKeyUp}></canvas>
 </div>
 
 <style lang="scss">
@@ -324,6 +336,7 @@
             justify-content: space-between;
             align-items: center;
             width: 60%;
+            min-width: fit-content;
             margin-left: 20%;
 
             border: 1px solid #d5d5d50c;
@@ -401,22 +414,7 @@
                 position: absolute;
                 z-index: 1;
             }
-
-            #dev-tools {
-                position: absolute;
-                display: grid;
-                grid-template-columns: 100px;
-                row-gap: 5px;
-                width: 200px;
-                height: 100%;
-                z-index: 2;
-
-                padding: 10px;
-                box-sizing: border-box;
-
-                justify-content: center;
-            }
-
+            
             #notes {
                 width: 100%;
                 height: 100%;

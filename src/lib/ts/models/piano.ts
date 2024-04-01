@@ -102,10 +102,14 @@ export class Piano {
         }
     }
 
-    public reset() {
+    public releaseAll() {
         while (this.pressedNotes.length !== 0) {
             this.release(this.pressedNotes[0]);
         }
+    }
+
+    public reset() {
+        this.releaseAll();
     }
 
     public addOnNoteListener(listener: (midi: number, release: boolean) => void) {

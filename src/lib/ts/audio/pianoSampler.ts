@@ -2,15 +2,21 @@ import type { Piano } from '../models/piano';
 import { MidiNoteOff, MidiNoteOn } from '../constants/constants';
 import { midiNumberToNote } from '../util/Midi';
 import { Instrument } from './Instrument';
+import defaultConfig from '../util/Config';
 
 export class PianoSampler extends Instrument {
 
     private piano: Piano;
+    private volume: number = 0;
 
     constructor(piano: Piano) {
         super();
 
         this.piano = piano;
+
+        defaultConfig.subscribe(v => {
+            this.volume = v.volume;
+        });
     }
 
     public midiEvent(e: MIDIMessageEvent) {
@@ -25,6 +31,9 @@ export class PianoSampler extends Instrument {
         const noteName = midiNumberToNote(midi, (n, o) => {
             return n + o;
         }, true);
-        new Audio("samples/mp3/" + noteName + ".mp3").play();
+
+        const audio = new Audio("samples/mp3/" + noteName + ".mp3");
+        audio.volume = this.volume;
+        audio.play();
     }
 }
