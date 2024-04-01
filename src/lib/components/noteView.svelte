@@ -245,6 +245,10 @@
         await midi.readBlob(blob);
         applyMidi();
     }
+
+    const pianoKeyPress = (e: MouseEvent) => {
+        pianoKeys.mouseKeyPress(e);
+    };
 </script>
 
 <svelte:window on:mousemove={resize} on:mouseup={resizeMouseUp} on:drop={hideMidiDropHint}/>
@@ -300,7 +304,7 @@
     </div>
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div id="resize-handle" on:mousedown={resizeMouseDown}></div>
-    <canvas bind:this={pianoKeysCanvas} id="piano"></canvas>
+    <canvas bind:this={pianoKeysCanvas} id="piano" on:click={pianoKeyPress}></canvas>
 </div>
 
 <style lang="scss">

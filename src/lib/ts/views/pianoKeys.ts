@@ -104,10 +104,39 @@ export class PianoKeys {
             ctx.strokeRect(naturalKeyWidth * i + naturalKeyWidth - sharpKeyWidth / 2, 0, sharpKeyWidth, height * sharpKeyHeightFactor);
         }
     }
+
+    public mouseKeyPress(e: MouseEvent) {
+        const numNaturalKeys = this.piano.getOctaves() * 7 + 1;
+        const naturalKeyWidth = this.width / numNaturalKeys;
+        const sharpKeyWidth = naturalKeyWidth * sharpKeyWidthFactor;
+
+        // sharp keys
+        for (let i = 0; i < numNaturalKeys; i++) {
+            //if (i % 7 === 2 || i % 7 === 6 || i === numNaturalKeys - 1) continue;
+            if (isPointInRect(naturalKeyWidth * i + naturalKeyWidth - sharpKeyWidth / 2, 0, sharpKeyWidth, this.height * sharpKeyHeightFactor, e.offsetX, e.offsetY)) {
+                console.log("sharp")
+                return;
+            }
+        }
+
+        // natural keys
+        for (let i = 0; i < numNaturalKeys; i++) {
+            if (isPointInRect(naturalKeyWidth * i, 0, naturalKeyWidth, this.height, e.offsetX, e.offsetY)) {
+                console.log("natural")
+                return;
+            }
+        }
+
+        console.log(e)
+    }
 }
 
 function getKeyboardKeyForMidi(midi: number): string {
     const remainder = midi % 12;
     const letters = ["a", "w", "s", "e", "d", "f", "t", "g", "z", "h", "u", "j"];
     return letters[remainder];
+}
+
+function isPointInRect(x: number, y: number, w: number, h: number, px: number, py: number) {
+    return px >= x && px <= x + w && py >= y && py <= y + h;
 }
