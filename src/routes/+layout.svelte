@@ -2,19 +2,25 @@
     import ExternalLink from '$lib/components/ExternalLink.svelte';
     import { dev } from '$app/environment';
     import { inject } from '@vercel/analytics';
+	import { onMount } from 'svelte';
+	import { setAudioContext } from '$lib/ts/util/globals';
     
     inject({ mode: dev ? 'development' : 'production' });
+
+    onMount(() => {
+        setAudioContext(new AudioContext());
+    });
 </script>
 
 <div class="main">
     <header>
         <div>
-            <h1>
+            <h1 style="display: flex; flex-direction: row;">
                 <a href="/">mfp</a>
+                <span style="font-size: 15px; margin-left: 8px; margin-top: 4px; font-weight: 100; text-wrap: nowrap;">
+                    | piano learning online
+                </span>
             </h1>
-            <!-- <div id="header-center">
-                Title
-            </div> -->
             <div id="routes">
                 <a href="/">home</a>
                 <a href="/about">about</a>

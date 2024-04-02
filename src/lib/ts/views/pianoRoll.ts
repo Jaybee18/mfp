@@ -25,7 +25,7 @@ export class PianoRoll {
     private midi: Midi | null = null;
 
     private _isPlaying: boolean = false;
-    private virtualPiano: boolean = false;
+    private autoPlay: boolean = false;
     private stopUntilNotePress: boolean = false;
 
     public drawNote: ((ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, isSharp: boolean) => void) | null = null;
@@ -42,7 +42,7 @@ export class PianoRoll {
         this.calculateKeyWidths();
 
         defaultConfig.subscribe(v => {
-            this.virtualPiano = v.virtualPiano;
+            this.autoPlay = v.autoPlay;
             this.stopUntilNotePress = v.stopUntilNotePress;
         });
     }
@@ -197,7 +197,7 @@ export class PianoRoll {
                 ctx.closePath();
             }
 
-            if (this.virtualPiano) {
+            if (this.autoPlay) {
                 // visualizing the keys
                 if (this.time > note.startTime && this.time < note.startTime + note.duration) {
                     highlightedNotes.push(note);

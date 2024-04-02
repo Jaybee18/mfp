@@ -8,12 +8,15 @@
     let dragging = false;
     let downX = 0;
     let downValue = 0;
+    let valueBeforeMute = 0;
 
     let tooltip: HTMLElement;
     let handle: HTMLElement;
 
     const _mute = () => {
-        setVolume($defaultConfig.volume === 0 ? 0.5 : 0);
+        if ($defaultConfig.volume !== 0)
+            valueBeforeMute = $defaultConfig.volume;
+        setVolume($defaultConfig.volume === 0 ? valueBeforeMute : 0);
     }
 
     const onMouseDown = (e: MouseEvent) => {
@@ -35,7 +38,8 @@
         tooltip.style.visibility = "visible";
         tooltip.style.opacity = "1";
 
-        setVolume(downValue + (e.x - downX) / 100);
+
+        setVolume(clamp(downValue + (e.x - downX) / 100, 0, 1));
     };
 
     const onMouseUp = () => {
@@ -43,6 +47,10 @@
         tooltip.style.visibility = "";
         tooltip.style.opacity = "";
         handle.classList.remove("no-transition");
+    }
+
+    function clamp(value: number, min: number, max: number): number {
+        return Math.min(Math.max(value, min), max);
     }
 </script>
 <svelte:window on:mousemove={drag} on:mouseup={onMouseUp}/>

@@ -116,6 +116,10 @@ export class Piano {
         this.onNoteListeners.push(listener);
     }
 
+    public removeOnNoteListener(listener: (midi: number, release: boolean) => void) {
+        this.onNoteListeners.splice(this.onNoteListeners.indexOf(listener), 1);
+    }
+
     public getOctaves() {
         return this.numOctaves;
     }

@@ -5,8 +5,8 @@
 </script>
 <div id="main">
     <div id="settings-item">
-        <p>Automatically let the virtual piano play the midi notes</p>
-        <ToggleButton text={$defaultConfig.virtualPiano ? "enabled" : "disabled"} bind:active={$defaultConfig.virtualPiano}/>
+        <p>AutoPlay: Automatically let the virtual piano play the midi notes</p>
+        <ToggleButton text={$defaultConfig.autoPlay ? "enabled" : "disabled"} bind:active={$defaultConfig.autoPlay}/>
     </div>
     <div id="settings-item">
         <p>Wait until notes are played</p>
@@ -17,7 +17,7 @@
         <ToggleButton text={$defaultConfig.drawNoteLabels ? "enabled" : "disabled"} bind:active={$defaultConfig.drawNoteLabels}/>
     </div>
     <div id="settings-item">
-        <p>Number of octaves in virtual keyboard</p>
+        <p>Number of octaves on keyboard</p>
         <ValueSlider text="octaves" bind:value={$defaultConfig.numOctaves} min={1} max={7}/>
     </div>
 </div>

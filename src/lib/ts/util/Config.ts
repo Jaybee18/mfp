@@ -5,10 +5,11 @@ export type Config = {
     drawNoteLabels: boolean,
     drawBeatLabels: boolean,
     drawBeatLines: boolean,
-    virtualPiano: boolean,
+    autoPlay: boolean,
     stopUntilNotePress: boolean,
     numOctaves: number,
     volume: number,
+    useMidiController: boolean,
 }
 
 const defaultConfig: Writable<Config> = writable({
@@ -16,10 +17,11 @@ const defaultConfig: Writable<Config> = writable({
     drawNoteLabels: false,
     drawBeatLabels: false,
     drawBeatLines: true,
-    virtualPiano: false,
+    autoPlay: false,
     stopUntilNotePress: true,
     numOctaves: 4,
     volume: 0.5,
+    useMidiController: false,
 });
 
 export function setSpeedFactor(factor: number): boolean {
@@ -60,9 +62,9 @@ export function setDrawBeatLines(draw: boolean): boolean {
     return true;
 }
 
-export function setVirtualPiano(enabled: boolean): boolean {
+export function setAutoPlay(enabled: boolean): boolean {
     defaultConfig.update(v => {
-        v.virtualPiano = enabled;
+        v.autoPlay = enabled;
         return v;
     });
 
@@ -94,6 +96,15 @@ export function setVolume(volume: number): boolean {
 
     defaultConfig.update(v => {
         v.volume = volume;
+        return v;
+    });
+
+    return true;
+}
+
+export function setUseMidiController(enabled: boolean): boolean {
+    defaultConfig.update(v => {
+        v.useMidiController = enabled;
         return v;
     });
 
