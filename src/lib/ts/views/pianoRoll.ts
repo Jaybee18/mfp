@@ -278,7 +278,8 @@ export class PianoRoll {
 
         // don't play further than the midi files length
         if (this.time + this.deltaTicks > this.midi.trackLength) {
-            this.time = this.midi.trackLength + 1;
+            this.time = this.midi.trackLength + this.deltaTicks - 1;
+            this.stop();
         } else {
             this.time += this.deltaTicks;
         }
@@ -291,7 +292,7 @@ export class PianoRoll {
         this.deltaTicks = deltaBeats * this.ticksPerBeat * this.speedFactor;
     }
 
-    public play(updateCallback?: () => void) {
+    public play(updateCallback?: () => void, onEnd?: () => void) {
         this._isPlaying = true;
 
         const intervalTimeout = 1000 / pianoRollFps;
@@ -306,6 +307,8 @@ export class PianoRoll {
             }
             this.tick();
             this.draw();
+            if (onEnd !== undefined && !this._isPlaying)
+                onEnd();
         }, intervalTimeout);
     }
 

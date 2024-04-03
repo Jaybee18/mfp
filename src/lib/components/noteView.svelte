@@ -44,9 +44,13 @@
     const play = () => {   
         if (!pianoRoll.isPlaying() && pianoRoll.hasNotes()) {
             pianoRoll.play(() => {
-                if (midi !== null)
+                if (midi !== null) {
                     playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toFixed(1)) + "s / " + String((pianoRoll.toTimeMs(midi.trackLength)/1000).toFixed(1)) + "s";
+                }
                 updatePianoKeys();
+            }, () => {
+                pianoKeys.draw();
+                showMidiDropHint();
             });
 
             playButtonText = "stop";
@@ -68,16 +72,24 @@
             port.onmidimessage = onMidiIn;
         })
 
-        console.log("midi setup successful");
-        setMidiConnected(true);
+        if (inputs.size > 0) {
+            console.log("midi setup successful");
+            setMidiConnected(true);
+        }
     };
 
-    const midiAccessDenied = () => {
-        console.log("midi access denied");
-    }
-
     const connectMidi = async (e: MouseEvent) => {
+        if (!isMidiConnected()) {
+            let res = await JZZ.requestMIDIAccess();
+            startMidiListen(res);
+        }
         if (!$defaultConfig.useMidiController) {
+            if (midiAccess?.inputs.size === 0) {
+                console.log("no midi device detected!");
+                alert("No midi device detected!");
+                return;
+            }
+
             midiAccess?.inputs.forEach(port => {
                 port.open();
             });
@@ -156,9 +168,6 @@
     }
 
     onMount(async () => {
-        if (!isMidiConnected())
-            JZZ.requestMIDIAccess().then(startMidiListen, midiAccessDenied);
-        
         updateCanvasSize(pianoRollCanvas);
         updateCanvasSize(pianoKeysCanvas);
         
@@ -203,6 +212,10 @@
     const hideMidiDropHint = () => {
         midiDropZone.style.display = "none";
     };
+    
+    const showMidiDropHint = () => {
+        midiDropZone.style.display = "flex";
+    }
 
     onDestroy(() => {
         stop();
@@ -370,7 +383,6 @@
 
                 #wrapper {
                     width: 100%;
-                    height: 100%;
                     position: relative;
                     display: flex;
                     flex-direction: column;
@@ -387,6 +399,13 @@
                         flex-direction: column;
                         justify-content: center;
                         color: #000000da;
+
+                        background-color: #2e282a;
+                        height: fit-content;
+                        padding: 10px;
+                        border-radius: 20px;
+                        // border: 1px solid #9b9b9b1a;
+                        // box-shadow: 1px 3px 2px 0px rgba(0, 0, 0, 0.231372549);
 
                         p {
                             color: $text-color;

@@ -48,3 +48,10 @@ A free piano learning web-app for midi devices.
     prozent
     beats/total beats
     sekunden/total sekunden
+- [ ] ending screen
+    score for current song
+    accuracy?
+    time?
+    total time?
+    difficulty rating?
+    next song select
