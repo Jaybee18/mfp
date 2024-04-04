@@ -22,7 +22,8 @@
     </p>
     <h2>Credits</h2>
     <p>
-        Thanks to Michelangelo Nottoli for the <a href="https://iconduck.com/sets/fontaudio-icon-library">Fontaudio Icon Set</a>
+        Thanks to Michelangelo Nottoli for the <a href="https://iconduck.com/sets/fontaudio-icon-library">Fontaudio Icon Set</a><br>
+        Thanks to <a href="https://theremin.music.uiowa.edu">University of Iowa Electronic Music Studios</a> for the free high quality audio samples
     </p>
 </div>
 
