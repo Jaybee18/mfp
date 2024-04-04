@@ -5,6 +5,7 @@
 	import defaultConfig, { setVolume } from "$lib/ts/util/Config";
 
     export let mute = $defaultConfig.volume === 0;
+    export let style: string = "";
     let dragging = false;
     let downX = 0;
     let downValue = 0;
@@ -54,7 +55,7 @@
     }
 </script>
 <svelte:window on:mousemove={drag} on:mouseup={onMouseUp}/>
-<div id="wrapper">
+<div id="wrapper" style={style}>
     <IconButton tooltip={mute ? "unmute" : "mute"} bind:active={mute} onClick={_mute}>
         {#if $defaultConfig.volume}
             <Fa icon={faVolumeHigh} scale={1.1} style="margin-left: -2px;"/>

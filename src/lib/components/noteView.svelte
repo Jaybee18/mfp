@@ -127,12 +127,7 @@
     const setupAudio = async () => {
         try {
             if (getAudioContext()?.state !== "running") {
-                piano.addOnNoteListener(noteListener);
                 getAudioContext()?.resume();
-
-                // Tone.start();
-                // const s = new Tone.PolySynth().toDestination();
-                //pianoSynth.setSynth(s);
             }
         } catch (err: any) {
             console.log(err)
@@ -171,6 +166,8 @@
         updateCanvasSize(pianoRollCanvas);
         updateCanvasSize(pianoKeysCanvas);
         
+        piano.addOnNoteListener(noteListener);
+
         const observer = new ResizeObserver(() => {
             if (pianoRollCanvas !== null && pianoKeysCanvas !== null) {
                 updateCanvasSize(pianoRollCanvas);
@@ -254,7 +251,7 @@
     const pianoKeyDown = (e: MouseEvent) => {
         // just relying on the window event listener takes too long
         // so this is a bit redundant but necessary
-        setupAudio();
+        // setupAudio();
         pianoKeys.mouseKeyPress(e);
     };
 
@@ -285,7 +282,7 @@
                     <Fa icon={faCirclePlayRegular} style="font-size: 18px; filter: brightness(0.5);"/>
                 {/if}
             </IconButton>
-            <VolumeSlider />
+            <VolumeSlider style="margin-right: 10px;"/>
         </div>
         <div>
             <Text bind:content={playbackTimeText} style={"margin-right: 5px;"}/>

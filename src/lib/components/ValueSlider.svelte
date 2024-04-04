@@ -21,7 +21,6 @@
 
             let tmp = Date.now();
             if (tmp - lastClick < 200 && defaultValue !== null) {
-                console.log("double click");
                 valueElement.innerText = defaultValue.toString();
             }
             lastClick = tmp;
@@ -32,8 +31,8 @@
         valueElement.addEventListener("mousemove", (e: MouseEvent) => {
             if (valueChange) {
                 const digits = Math.floor(Math.log10(1 / delta));
-                value = Number(valueElement.innerText) - e.movementY * delta;
-                value = Math.min(Math.max(value, min), max);
+                let tmp = Number(valueElement.innerText) - e.movementY * delta;
+                value = Math.min(Math.max(tmp, min), max);
                 valueElement.innerText = value.toFixed(digits);
                 onChange(Number(value));
             }
@@ -41,7 +40,6 @@
 
         valueElement.addEventListener("mouseup", () => {
             valueChange = false;
-            onChange(Number(valueElement.innerText));
             document.exitPointerLock();
         })
 

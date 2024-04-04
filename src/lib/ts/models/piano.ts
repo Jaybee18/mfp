@@ -15,7 +15,7 @@ function getMiddleCIndex(octaves: number) {
         case 6:
             return 36;
         case 7:
-            return 48;
+            return 36;
         default:
             return -1;
     }
