@@ -232,6 +232,7 @@
         piano.reset();
         pianoRoll.reset();
         pianoKeys.draw();
+        hideMidiDropHint();
         if (midi !== null)
             playbackTimeText = String((pianoRoll.getTimeMs() / 1000).toPrecision(2)) + "s / " + String((pianoRoll.toTimeMs(midi.trackLength)/1000).toFixed(2)) + "s";;
 
