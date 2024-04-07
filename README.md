@@ -41,6 +41,7 @@ A free piano learning web-app for midi devices.
 
 
 ## v0.1
+![image](https://github.com/Jaybee18/mfp/assets/64578396/d6318904-687e-4b9e-a15b-cdb5259f7f98)
 - [x] decent ui
 - [x] import midi
 - [x] play midi
