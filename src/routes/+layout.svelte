@@ -36,7 +36,7 @@
             <div>
                 &copy 2024 Jan Bessler
             </div>
-            <div>
+            <div style="width: 200px;">
                 <ExternalLink link="https://github.com/Jaybee18/mfp" text="GitHub"/>
                 <ExternalLink link="https://www.instagram.com/jaybes.mg/" text="Instagram"/>
                 <ExternalLink link="https://twitter.com/JanBessler" text="X"/>

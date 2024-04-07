@@ -49,7 +49,7 @@ export class PianoSampler extends Instrument {
         const noteName = midiNumberToNote(midi, (n, o) => {
             return n + o;
         }, true);
-
+        console.log("test")
         this.sound[noteName].volume(this.volume);
         this.sound[noteName].play();
     }

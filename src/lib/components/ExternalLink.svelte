@@ -19,7 +19,6 @@
     a {
         text-decoration: none;
         color: var(--text);
-        margin: 0 2.5px;
 
         display: flex;
         justify-content: center;
@@ -29,20 +28,26 @@
 
             #icon-wrapper {
                 #icon {
-                    margin-left: 0px;
+                    left: 2px;
                 }
             }
         }
 
         #icon-wrapper {
-            margin-left: 4px;
             width: 20px;
+            margin-right: -23px;
             overflow: hidden;
             transform: scale(0.85);
+            position: relative;
+            pointer-events: none;
 
             #icon {
-                margin-left: -20px;
-                transition: margin-left 0.1s;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                left: -20px;
+                transition: left 0.1s;
             }
         }
     }
