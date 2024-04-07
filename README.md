@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/github/license/Jaybee18/mfp)](https://shields.io/)
 [![Issues](https://img.shields.io/github/issues/Jaybee18/mfp)](https://shields.io/)
 
-A free piano learning web-app for midi devices.
+A free piano learning web-app with support for midi devices.
 </div>
 
 ### Features:
