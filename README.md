@@ -1,14 +1,31 @@
 <div align="center">
-    
-# mfp
+
+<img src="https://mfp-piano.com/icon.png" width="256">
+
+##
+
 ![Version](https://img.shields.io/github/v/tag/Jaybee18/mfp)
 [![Generic badge](https://img.shields.io/badge/Framework-SvelteKit-red.svg)](https://shields.io/)
 [![License](https://img.shields.io/github/license/Jaybee18/mfp)](https://shields.io/)
 [![Issues](https://img.shields.io/github/issues/Jaybee18/mfp)](https://shields.io/)
 
+A free piano learning web-app for midi devices.
 </div>
 
-A free piano learning web-app for midi devices.
+### Features:
+- Midi Controller Support
+- Mouse Support
+- Upload your own midi files
+- Piano Sampler with up to 7 octaves
+- Wait-For-Key-Press mode
+- AutoPlay for midi files
+- Key labels and press indicators on visual piano
+
+## v0.4
+![image](https://github.com/Jaybee18/mfp/assets/64578396/25f0a1af-8492-4988-b4cd-4645e0a89123)
+- [x] make piano keys manually clickable
+- ui polishing
+
 
 ## v0.3
 ![image](https://github.com/Jaybee18/mfp/assets/64578396/7f31d611-bc5a-45cf-9910-18733204b847)
@@ -40,7 +57,6 @@ A free piano learning web-app for midi devices.
     - [ ] play online midis
 - [ ] statistics for played songs (time learned, accuracy, # completed, ...)
 - [ ] switch between midi controller and keyboard
-- [ ] make piano keys manually clickable
 - [ ] snap midi notes to ticks (12 ticks? 6 ticks?) - option
 - [ ] zeit anzeige switch in
     sekunden
