@@ -72,3 +72,4 @@ A free piano learning web-app with support for midi devices.
     total time?
     difficulty rating?
     next song select
+- [ ] pop out piano into new browser window

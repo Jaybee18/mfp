@@ -14,6 +14,7 @@
 	import defaultConfig, { setAutoPlay, setUseMidiController, setVolume } from "$lib/ts/util/Config";
 	import { Midi } from "$lib/ts/util/Midi";
 	import { piano, pianoKeys, pianoRoll, instrument, setMidiConnected, isMidiConnected, getAudioContext } from "$lib/ts/util/globals";
+	import MidiDeviceSelectorPopUp from "./MidiDeviceSelectorPopUp.svelte";
 
     let playButtonText: string = "play";
     let playbackTimeText: string = "";
@@ -22,7 +23,9 @@
     let midiFileInput: HTMLInputElement;
     let midiDropZone: HTMLElement;
 
-    let midiAccess: WebMidi.MIDIAccess | null = null;
+    let showModal: boolean = false;
+
+    let midiAccess: WebMidi.MIDIAccess;
 
     let midi: Midi | null = null;
 
@@ -83,25 +86,19 @@
             let res = await JZZ.requestMIDIAccess();
             startMidiListen(res);
         }
-        if (!$defaultConfig.useMidiController) {
-            if (midiAccess?.inputs.size === 0) {
-                console.log("no midi device detected!");
-                alert("No midi device detected!");
-                return;
-            }
 
-            midiAccess?.inputs.forEach(port => {
-                port.open();
-            });
-            setUseMidiController(true);
+        if (!$defaultConfig.useMidiController) {
+            // enable midi controller
+            showModal = true;
         } else {
-            midiAccess?.inputs.forEach(port => {
-                port.close();
+            // disable midi controller
+            midiAccess.inputs.forEach(device => {
+                device.close();
             });
             setUseMidiController(false);
-        }
-    };
+        }            
 
+    };
 
     const onDrop = async (e: DragEvent) => {
         e.preventDefault();
@@ -320,6 +317,13 @@
     <div id="resize-handle" on:mousedown={resizeMouseDown}></div>
     <canvas bind:this={pianoKeysCanvas} id="piano" on:mousedown={pianoKeyDown} on:mouseup={pianoKeyUp}></canvas>
 </div>
+
+<MidiDeviceSelectorPopUp bind:showModal bind:midiAccess onChoice={device => {
+        if (!$defaultConfig.useMidiController) {
+            device.open();
+            setUseMidiController(true);
+        }
+}}/>
 
 <style lang="scss">
     @import './abstracts/variables';
