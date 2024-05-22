@@ -34,6 +34,7 @@
 
         #settings-item {
             padding: 10px;
+            min-height: 40px;
             
             display: flex;
             justify-content: space-between;

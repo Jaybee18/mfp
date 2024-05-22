@@ -24,6 +24,7 @@
             <div id="routes">
                 <a href="/">home</a>
                 <a href="/about">about</a>
+                <a href="/plugins">plugins</a>
                 <a href="/settings">settings</a>
             </div>
         </div>
